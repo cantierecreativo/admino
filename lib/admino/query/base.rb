@@ -15,7 +15,7 @@ module Admino
       attr_reader :fields
 
       def initialize(params = nil, config = nil)
-        @params = (params || {}).to_h.symbolize_keys!
+        @params = Hash(params || {}).symbolize_keys!
         @config = config
 
         init_groups

@@ -4,9 +4,8 @@ module Admino
   module Query
     class GroupPresenter < Showcase::Presenter
       def scope_link(scope, options = {})
+        active_class = options.delete(:active_class) { 'is-active' }
         options = Showcase::Helpers::HtmlOptions.new(options)
-
-        active_class = options.fetch(:active_class, 'is-active')
 
         if is_scope_active?(scope)
           options.add_class!(active_class)
