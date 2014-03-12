@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'showcase', '~> 0.2.4'
   spec.add_dependency 'activesupport'
   spec.add_dependency 'activemodel'
+  spec.add_dependency 'coercible'
 
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'

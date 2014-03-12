@@ -5,8 +5,8 @@ module Admino
         @config ||= Admino::Query::Configuration.new
       end
 
-      def field(name)
-        config.add_field(name)
+      def field(name, options = {})
+        config.add_field(name, options)
 
         define_method name do
           field_by_name(name).value

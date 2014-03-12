@@ -24,6 +24,8 @@ end
 
 class TestQuery < Admino::Query::Base
   field :foo
+  field :starting_from, coerce: :to_date
+
   group :bar, [:one, :two]
 
   starting_scope { 'start' }

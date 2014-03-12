@@ -3,9 +3,17 @@ module Admino
     class Configuration
       class Field
         attr_reader :name
+        attr_reader :coerce_to
 
-        def initialize(name)
+        def initialize(name, options = {})
+          options.symbolize_keys!
+          options.assert_valid_keys(:coerce)
+
           @name = name.to_sym
+
+          if coerce_to = options[:coerce]
+            @coerce_to = coerce_to.to_sym
+          end
         end
       end
 
@@ -29,8 +37,8 @@ module Admino
         @groups = []
       end
 
-      def add_field(name)
-        Field.new(name).tap do |field|
+      def add_field(name, options = {})
+        Field.new(name, options).tap do |field|
           self.fields << field
         end
       end

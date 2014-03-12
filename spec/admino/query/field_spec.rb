@@ -21,6 +21,17 @@ module Admino
             expect(field.value).to be_nil
           end
         end
+
+        context 'with coertion' do
+          let(:config) {
+            Configuration::Field.new(:foo, coerce: :to_date)
+          }
+          let(:params) { { 'query' => { 'foo' => '2014-10-05' } } }
+
+          it 'returns the coerced param value for the field' do
+            expect(field.value).to be_a Date
+          end
+        end
       end
 
       describe '#augment_scope' do

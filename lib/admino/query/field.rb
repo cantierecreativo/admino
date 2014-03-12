@@ -1,3 +1,4 @@
+require 'coercible'
 require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
 
@@ -21,7 +22,13 @@ module Admino
       end
 
       def value
-        params.fetch(:query, {}).fetch(param_name, nil)
+        value = params.fetch(:query, {}).fetch(param_name, nil)
+        if config.coerce_to
+          coercer = Coercible::Coercer.new
+          coercer[value.class].send(config.coerce_to, value)
+        else
+          value
+        end
       end
 
       def present?

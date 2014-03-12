@@ -7,8 +7,9 @@ module Admino
       let(:instance) { TestQuery.new }
 
       it 'allows #field declaration' do
-        field = config.fields.first
-        expect(field.name).to eq :foo
+        field = config.fields.last
+        expect(field.name).to eq :starting_from
+        expect(field.coerce_to).to eq :to_date
       end
 
       it 'allows #group declaration' do
