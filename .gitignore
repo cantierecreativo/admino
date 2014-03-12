@@ -9,9 +9,11 @@ _yardoc
 coverage
 doc/
 lib/bundler/man
+binstubs/
 pkg
 rdoc
 spec/reports
 test/tmp
 test/version_tmp
 tmp
+
