@@ -21,21 +21,24 @@ module Admino
 
       attr_reader :fields
       attr_reader :groups
-      attr_accessor :starting_scope
-      attr_accessor :ending_scope
+      attr_accessor :starting_scope_callable
+      attr_accessor :ending_scope_callable
 
       def initialize
         @fields = []
         @groups = []
-        @ending_scope = ->(query) { where(nil) }
       end
 
       def add_field(name)
-        self.fields << Field.new(name)
+        Field.new(name).tap do |field|
+          self.fields << field
+        end
       end
 
       def add_group(name, scopes)
-        self.groups << Group.new(name, scopes)
+        Group.new(name, scopes).tap do |group|
+          self.groups << group
+        end
       end
     end
   end

@@ -5,7 +5,12 @@ module Admino
     class GroupPresenter < Showcase::Presenter
       def scope_link(scope, options = {})
         options = Showcase::Helpers::HtmlOptions.new(options)
-        options.add_class!('is-active') if is_scope_active?(scope)
+
+        active_class = options.fetch(:active_class, 'is-active')
+
+        if is_scope_active?(scope)
+          options.add_class!(active_class)
+        end
 
         h.link_to scope_name(scope), scope_url(scope), options.to_h
       end

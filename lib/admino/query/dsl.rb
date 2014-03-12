@@ -18,11 +18,11 @@ module Admino
       end
 
       def starting_scope(&block)
-        config.starting_scope = block
+        config.starting_scope_callable = block
       end
 
       def ending_scope(&block)
-        config.ending_scope = block
+        config.ending_scope_callable = block
       end
 
       def i18n_scope

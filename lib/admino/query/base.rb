@@ -14,25 +14,56 @@ module Admino
       attr_reader :groups
       attr_reader :fields
 
-      def initialize(params)
+      def initialize(params = nil, config = nil)
         @params = (params || {}).to_h.symbolize_keys!
+        @config = config
 
         init_groups
         init_fields
       end
 
       def scope(starting_scope = nil)
-        scope_builder = starting_scope || config.starting_scope.call(self)
+        starting_scope ||= if config.starting_scope_callable
+                             config.starting_scope_callable.call(self)
+                           else
+                             raise ArgumentError, 'no starting scope provided'
+                           end
+
+        scope_builder = starting_scope
 
         (fields + groups).each do |field|
           scope_builder = field.augment_scope(scope_builder)
         end
 
-        scope_builder.instance_exec(self, &config.ending_scope)
+        if config.ending_scope_callable
+          scope_builder.instance_exec(self, &config.ending_scope_callable)
+        else
+          scope_builder
+        end
       end
 
       def persisted?
         false
+      end
+
+      def config
+        @config || self.class.config
+      end
+
+      def groups
+        @groups.values
+      end
+
+      def group_by_name(name)
+        @groups[name]
+      end
+
+      def fields
+        @fields.values
+      end
+
+      def field_by_name(name)
+        @fields[name]
       end
 
       private
@@ -45,31 +76,11 @@ module Admino
         end
       end
 
-      def groups
-        @groups.values
-      end
-
-      def group_by_name(name)
-        @groups[name]
-      end
-
       def init_fields
         @fields = {}
         config.fields.each do |config|
           @fields[config.name] = Field.new(config, params)
         end
-      end
-
-      def fields
-        @fields.values
-      end
-
-      def field_by_name(name)
-        @fields[name]
-      end
-
-      def config
-        self.class.config
       end
     end
   end
