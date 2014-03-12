@@ -19,7 +19,7 @@ module Admino
       end
 
       def initialize(params = nil, config = nil)
-        @params = Hash(params || {}).symbolize_keys!
+        @params = (params || {}).symbolize_keys!
         @config = config
 
         init_groups
