@@ -14,6 +14,10 @@ module Admino
       attr_reader :groups
       attr_reader :fields
 
+      def self.i18n_scope
+        :query
+      end
+
       def initialize(params = nil, config = nil)
         @params = Hash(params || {}).symbolize_keys!
         @config = config

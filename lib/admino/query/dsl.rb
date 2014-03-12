@@ -24,10 +24,6 @@ module Admino
       def ending_scope(&block)
         config.ending_scope_callable = block
       end
-
-      def i18n_scope
-        :query
-      end
     end
   end
 end

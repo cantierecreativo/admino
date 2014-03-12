@@ -6,7 +6,7 @@ module Admino
       subject(:presenter) { BasePresenter.new(query, view) }
       let(:view) { RailsViewContext.new }
       let(:query) do
-        double('Base', bar: 'value')
+        TestQuery.new(query: { foo: 'value' })
       end
       let(:request_object) do
         double(
@@ -20,28 +20,38 @@ module Admino
       end
 
       describe '#form' do
-        context do
-          let(:result) do
-            presenter.form do |form|
-              form.text_field :bar
-            end
+        let(:result) do
+          presenter.form do |form|
+            form.label(:foo) <<
+            form.text_field(:foo)
           end
+        end
 
-          it 'renders a form pointing to the current URL' do
-            expect(result).to have_tag(:form, with: { action: '/?foo=bar' })
-          end
+        before do
+          I18n.backend.store_translations(
+            :en,
+            query: { attributes: { test_query: { foo: 'NAME' } } }
+          )
+        end
 
-          it 'renders a form with method GET' do
-            expect(result).to have_tag(:form, with: { method: 'get' })
-          end
+        it 'renders a form pointing to the current URL' do
+          expect(result).to have_tag(:form, with: { action: '/?foo=bar' })
+        end
 
-          it 'renders inputs with a query[] name prefix' do
-            expect(result).to have_tag(:input, with: { type: 'text', name: 'query[bar]' })
-          end
+        it 'renders a form with method GET' do
+          expect(result).to have_tag(:form, with: { method: 'get' })
+        end
 
-          it 'prefills inputs with query value' do
-            expect(result).to have_tag(:input, with: { type: 'text', value: 'value' })
-          end
+        it 'renders inputs with a query[] name prefix' do
+          expect(result).to have_tag(:input, with: { type: 'text', name: 'query[foo]' })
+        end
+
+        it 'prefills inputs with query value' do
+          expect(result).to have_tag(:input, with: { type: 'text', value: 'value' })
+        end
+
+        it 'it generates labels in the :query I18n space' do
+          expect(result).to have_tag(:label, text: 'NAME')
         end
       end
     end
