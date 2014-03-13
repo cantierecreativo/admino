@@ -1,5 +1,7 @@
 require 'active_model/naming'
 require 'active_model/translation'
+require 'active_support/hash_with_indifferent_access'
+require 'active_support/core_ext/hash'
 
 require 'admino/query/dsl'
 
@@ -19,7 +21,7 @@ module Admino
       end
 
       def initialize(params = nil, config = nil)
-        @params = (params || {}).symbolize_keys!
+        @params = ActiveSupport::HashWithIndifferentAccess.new(params)
         @config = config
 
         init_groups
