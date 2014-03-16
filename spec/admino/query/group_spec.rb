@@ -51,6 +51,14 @@ module Admino
           end
         end
       end
+
+      describe '#is_scope_active?' do
+        let(:params) { { 'foo' => 'bar' } }
+
+        it 'returns true if the provided scope is the one currently active' do
+          expect(group.is_scope_active?(:bar)).to be_true
+        end
+      end
     end
   end
 end

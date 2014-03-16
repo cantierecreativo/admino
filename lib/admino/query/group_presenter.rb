@@ -40,18 +40,25 @@ module Admino
       end
 
       def scope_name(scope)
+        scope ||= 'none'
         I18n.t(
-          scope || :none,
-          scope: [:query, :groups, query_i18n_key, i18n_key, :scopes],
-          default: scope.to_s.titleize
+          :"#{query_i18n_key}.#{i18n_key}.scopes.#{scope}",
+          scope: 'query.groups',
+          default: [
+            :"#{i18n_key}.scopes.#{scope}",
+            scope.to_s.titleize
+          ]
         )
       end
 
       def name
         I18n.t(
-          :name,
-          scope: [:query, :groups, query_i18n_key, i18n_key],
-          default: i18n_key.to_s.titleize
+          :"#{query_i18n_key}.#{i18n_key}.name",
+          scope: 'query.groups',
+          default: [
+            :"#{i18n_key}.name",
+            i18n_key.to_s.titleize
+          ]
         )
       end
     end

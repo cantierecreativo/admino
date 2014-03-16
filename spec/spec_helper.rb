@@ -1,5 +1,14 @@
+require 'simplecov'
 require 'coveralls'
-Coveralls.wear!
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+
+SimpleCov.start do
+  add_filter 'spec'
+end
 
 require 'admino'
 require 'pry'
@@ -30,6 +39,33 @@ class TestQuery < Admino::Query::Base
 
   starting_scope { 'start' }
   ending_scope { 'end' }
+end
+
+class Post < Struct.new(:key)
+  extend ActiveModel::Naming
+  extend ActiveModel::Translation
+
+  def title
+    "Post #{key}"
+  end
+
+  def author_name
+    "steffoz"
+  end
+
+  def to_param
+    key
+  end
+
+  def to_key
+    [key]
+  end
+end
+
+require 'showcase/traits'
+
+class PostPresenter < Showcase::Presenter
+  include Showcase::Traits::Record
 end
 
 require 'action_view'
