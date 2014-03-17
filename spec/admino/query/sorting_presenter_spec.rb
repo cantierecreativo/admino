@@ -128,7 +128,7 @@ module Admino
         end
 
         context 'scope is the default one' do
-          let(:sorting) { double('Sorting', default_scope: 'by_title') }
+          let(:sorting) { double('Sorting', default_scope: :by_title) }
 
           context 'default scope is ascending' do
             before do

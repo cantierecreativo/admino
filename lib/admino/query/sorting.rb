@@ -49,8 +49,12 @@ module Admino
         config.default_scope
       end
 
+      def default_direction
+        config.default_direction
+      end
+
       def default_direction_is_ascending?
-        config.default_direction != :desc
+        default_direction != :desc
       end
 
       def param_value
