@@ -43,9 +43,9 @@ module Admino
         html_options = html_options.to_h
 
         sorting_scope = html_options.delete(:sorting)
+        sorting_html_options = html_options.delete(:sorting_html_options) { {} }
         if sorting_scope
           raise ArgumentError, 'query object is required' unless query
-          sorting_html_options = html_options.delete(:sorting_html_options) { {} }
           label = query.sorting.scope_link(sorting_scope, label, sorting_html_options)
         end
 
