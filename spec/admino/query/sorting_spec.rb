@@ -123,6 +123,14 @@ module Admino
           end
         end
       end
+
+      describe '#is_scope_active?' do
+        let(:params) { { 'sorting' => 'by_date' } }
+
+        it 'returns true if the provided scope is the one currently active' do
+          expect(sorting.is_scope_active?(:by_date)).to be_true
+        end
+      end
     end
   end
 end

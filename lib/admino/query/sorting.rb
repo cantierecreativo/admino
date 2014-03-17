@@ -68,10 +68,6 @@ module Admino
       def available_scopes
         config.scopes
       end
-
-      def scope_name
-        config.name
-      end
     end
   end
 end
