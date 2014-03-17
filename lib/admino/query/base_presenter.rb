@@ -4,6 +4,7 @@ module Admino
   module Query
     class BasePresenter < Showcase::Presenter
       presents_collection :groups
+      presents :sorting
 
       def form(options = {}, &block)
         h.form_for(

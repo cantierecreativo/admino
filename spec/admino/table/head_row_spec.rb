@@ -3,9 +3,10 @@ require 'spec_helper'
 module Admino
   module Table
     describe HeadRow do
-      subject(:row) { HeadRow.new(klass, view) }
-      let(:view) { RailsViewContext.new }
+      subject(:row) { HeadRow.new(klass, query, view) }
       let(:klass) { Post }
+      let(:query) { nil }
+      let(:view) { RailsViewContext.new }
 
       it 'takes a class and a view context' do
         expect(row.resource_klass).to eq klass
@@ -46,6 +47,30 @@ module Admino
 
             it 'generates a label with the human attribute name' do
               should have_tag(:th, text: 'Post title')
+            end
+          end
+        end
+
+        context 'sorting' do
+          context 'if no query object is present' do
+            it 'raises an ArgumentError' do
+              expect { row.column(:title, sorting: :by_title) }.to raise_error ArgumentError
+            end
+          end
+
+          context 'else' do
+            let(:query) { double('Query', sorting: sorting) }
+            let(:sorting) { double('Sorting') }
+
+            before do
+              sorting.stub(:scope_link).with(:by_title, 'Title', {}).
+                and_return('Link')
+            end
+
+            before { row.column(:title, sorting: :by_title) }
+
+            it 'generates a sorting scope link' do
+              should have_tag(:th, text: 'Link')
             end
           end
         end

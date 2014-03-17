@@ -5,9 +5,11 @@ module Admino
   module Table
     class HeadRow < Row
       attr_reader :resource_klass
+      attr_reader :query
 
-      def initialize(resource_klass, view_context)
+      def initialize(resource_klass, query, view_context)
         @resource_klass = resource_klass
+        @query = query
         @columns = ""
 
         super(view_context)
@@ -38,6 +40,14 @@ module Admino
         default_options = column_html_options(attribute_name)
         html_options = Showcase::Helpers::HtmlOptions.new(default_options)
         html_options.merge_attrs!(options)
+        html_options = html_options.to_h
+
+        sorting_scope = html_options.delete(:sorting)
+        if sorting_scope
+          raise ArgumentError, 'query object is required' unless query
+          sorting_html_options = html_options.delete(:sorting_html_options) { {} }
+          label = query.sorting.scope_link(sorting_scope, label, sorting_html_options)
+        end
 
         @columns << h.content_tag(:th, label.to_s, html_options.to_h)
       end

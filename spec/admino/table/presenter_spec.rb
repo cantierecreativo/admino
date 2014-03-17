@@ -4,8 +4,9 @@ require 'ostruct'
 module Admino
   module Table
     describe Presenter do
-      subject(:presenter) { presenter_klass.new(collection, Post, view) }
+      subject(:presenter) { presenter_klass.new(collection, Post, query, view) }
       let(:presenter_klass) { Presenter }
+      let(:query) { double('Query') }
       let(:view) { RailsViewContext.new }
 
       let(:collection) { [ first_post, second_post ] }
@@ -21,7 +22,7 @@ module Admino
         PostPresenter.stub(:new).with(first_post, view).and_return(first_post_presenter)
         PostPresenter.stub(:new).with(second_post, view).and_return(second_post_presenter)
 
-        HeadRow.stub(:new).with(Post, view).and_return(head_row)
+        HeadRow.stub(:new).with(Post, query, view).and_return(head_row)
         ResourceRow.stub(:new).with(first_post_presenter, view).and_return(resource_row)
         ResourceRow.stub(:new).with(second_post_presenter, view).and_return(resource_row)
       end

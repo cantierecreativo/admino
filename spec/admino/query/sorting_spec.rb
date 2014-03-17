@@ -45,12 +45,12 @@ module Admino
         end
       end
 
-      describe '#ascendent?' do
+      describe '#ascending?' do
         context 'with no param' do
           let(:params) { {} }
 
           it 'returns true' do
-            expect(sorting).to be_ascendent
+            expect(sorting).to be_ascending
           end
         end
 
@@ -58,7 +58,7 @@ module Admino
           let(:params) { { 'sort_order' => 'foo' } }
 
           it 'returns true' do
-            expect(sorting).to be_ascendent
+            expect(sorting).to be_ascending
           end
         end
 
@@ -66,7 +66,7 @@ module Admino
           let(:params) { { 'sort_order' => 'asc' } }
 
           it 'returns nil' do
-            expect(sorting).to be_ascendent
+            expect(sorting).to be_ascending
           end
         end
 
@@ -74,7 +74,7 @@ module Admino
           let(:params) { { 'sort_order' => 'desc' } }
 
           it 'returns the param value for the field' do
-            expect(sorting).not_to be_ascendent
+            expect(sorting).not_to be_ascending
           end
         end
 
@@ -83,7 +83,7 @@ module Admino
           let(:params) { { 'sorting' => 'by_date', 'sort_order' => 'desc' } }
 
           it 'returns it' do
-            expect(sorting).not_to be_ascendent
+            expect(sorting).not_to be_ascending
           end
         end
       end

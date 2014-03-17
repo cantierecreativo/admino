@@ -26,29 +26,33 @@ module Admino
       end
 
       describe '#scope_link' do
+        subject { presenter.scope_link(:foo) }
+
         before do
-          group.stub(:is_scope_active?).with(:foo).and_return(true)
+          group.stub(:is_scope_active?).with(:foo).and_return(false)
         end
 
         context 'active CSS class' do
+          before do
+            group.stub(:is_scope_active?).with(:foo).and_return(true)
+          end
+
           it 'adds an is-active class' do
-            expect(presenter.scope_link(:foo)).to have_tag(:a, with: { class: 'is-active' })
+            should have_tag(:a, with: { class: 'is-active' })
           end
 
           context 'if an :active_class option is specified' do
+            subject { presenter.scope_link(:foo, active_class: 'active') }
+
             it 'adds it' do
-              expect(presenter.scope_link(:foo, active_class: 'active')).to have_tag(:a, with: { class: 'active' })
+              should have_tag(:a, with: { class: 'active' })
             end
           end
+        end
 
-          context 'else' do
-            before do
-              group.stub(:is_scope_active?).with(:foo).and_return(false)
-            end
-
-            it 'does not add it' do
-              expect(presenter.scope_link(:foo)).not_to have_tag(:a, with: { class: 'is-active' })
-            end
+        context 'else' do
+          it 'does not add it' do
+            should_not have_tag(:a, with: { class: 'is-active' })
           end
         end
 
@@ -58,12 +62,14 @@ module Admino
           end
 
           it 'uses #scope_name method' do
-            expect(presenter.scope_link(:foo)).to have_tag(:a, text: 'scope_name')
+            should have_tag(:a, text: 'scope_name')
           end
 
           context 'if a second parameter is supplied' do
+            subject { presenter.scope_link(:foo, 'test', active_class: 'active') }
+
             it 'uses it' do
-              expect(presenter.scope_link(:foo, 'test')).to have_tag(:a, text: 'test')
+              should have_tag(:a, text: 'test')
             end
           end
         end
@@ -74,7 +80,7 @@ module Admino
           end
 
           it 'uses #scope_path method' do
-            expect(presenter.scope_link(:foo)).to have_tag(:a, href: 'URL')
+            should have_tag(:a, href: 'URL')
           end
         end
       end

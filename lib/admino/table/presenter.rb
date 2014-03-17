@@ -6,6 +6,7 @@ module Admino
   module Table
     class Presenter < Showcase::Presenter
       attr_reader :collection_klass
+      attr_reader :query
 
       def self.tag_helper(name, tag, options = {})
         default_options_method = :"#{name}_html_options"
@@ -28,8 +29,13 @@ module Admino
       tag_helper :tbody,    :tbody
       tag_helper :tbody_tr, :tr, params: %w(resource index)
 
-      def initialize(collection, klass, context)
-        @collection_klass = klass
+      def initialize(*args)
+        context = args.pop
+        collection = args.shift
+
+        @collection_klass = args.shift
+        @query = args.shift
+
         super(collection, context)
       end
 
@@ -37,7 +43,7 @@ module Admino
         table_tag(options) do
           thead_tag do
             thead_tr_tag do
-              row = head_row(collection_klass, view_context)
+              row = head_row(collection_klass, query, view_context)
               h.capture(row, nil, &block) if block_given?
               row.to_html
             end
@@ -64,8 +70,8 @@ module Admino
         @collection ||= present_collection(object)
       end
 
-      def head_row(collection_klass, view_context)
-        HeadRow.new(collection_klass, view_context)
+      def head_row(collection_klass, query, view_context)
+        HeadRow.new(collection_klass, query, view_context)
       end
 
       def resource_row(resource, view_context)

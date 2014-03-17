@@ -15,17 +15,21 @@ module Admino
 
       def augment_scope(scope)
         if active_scope
-          scope.send(active_scope, ascendent? ? :asc : :desc)
+          scope.send(active_scope, ascending? ? :asc : :desc)
         else
           scope
         end
       end
 
-      def ascendent?
+      def is_scope_active?(scope)
+        active_scope == scope
+      end
+
+      def ascending?
         if params[:sort_order] == 'desc'
           false
         elsif params[:sort_order].blank? && active_scope == default_scope
-          default_direction_is_ascendent?
+          default_direction_is_ascending?
         else
           true
         end
@@ -45,7 +49,7 @@ module Admino
         config.default_scope
       end
 
-      def default_direction_is_ascendent?
+      def default_direction_is_ascending?
         config.default_direction != :desc
       end
 
