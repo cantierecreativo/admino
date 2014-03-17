@@ -49,7 +49,7 @@ module Admino
           label = query.sorting.scope_link(sorting_scope, label, sorting_html_options)
         end
 
-        @columns << h.content_tag(:th, label.to_s, html_options.to_h)
+        @columns << h.content_tag(:th, label.to_s, html_options)
       end
 
       def to_html
