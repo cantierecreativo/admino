@@ -50,6 +50,23 @@ module Admino
         end
       end
 
+      context 'with a declared sorting' do
+        let(:config) { Configuration.new }
+        let(:sorting_config) do
+          config.add_sorting_scopes([:by_title, :by_date])
+        end
+
+        before do
+          sorting_config
+        end
+
+        it 'returns a configured Sorting' do
+          sorting = query.sorting
+          expect(sorting.config).to eq sorting_config
+          expect(sorting.params).to eq params
+        end
+      end
+
       describe '#scope' do
         let(:config) { Configuration.new }
         let(:result) { query.scope(starting_scope) }

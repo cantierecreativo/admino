@@ -15,6 +15,7 @@ module Admino
       attr_reader :params
       attr_reader :groups
       attr_reader :fields
+      attr_reader :sorting
 
       def self.i18n_scope
         :query
@@ -26,6 +27,7 @@ module Admino
 
         init_groups
         init_fields
+        init_sorting
       end
 
       def scope(starting_scope = nil)
@@ -37,7 +39,10 @@ module Admino
 
         scope_builder = starting_scope
 
-        (fields + groups).each do |field|
+        scope_augmenters = fields + groups
+        scope_augmenters << sorting if sorting
+
+        scope_augmenters.each do |field|
           scope_builder = field.augment_scope(scope_builder)
         end
 
@@ -86,6 +91,12 @@ module Admino
         @fields = {}
         config.fields.each do |config|
           @fields[config.name] = Field.new(config, params)
+        end
+      end
+
+      def init_sorting
+        if config.sorting
+          @sorting = Sorting.new(config.sorting, params)
         end
       end
     end

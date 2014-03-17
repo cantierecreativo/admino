@@ -37,6 +37,10 @@ class TestQuery < Admino::Query::Base
 
   group :bar, [:one, :two]
 
+  sorting :by_title, :by_date,
+          default_scope: :by_title,
+          default_direction: :desc
+
   starting_scope { 'start' }
   ending_scope { 'end' }
 end

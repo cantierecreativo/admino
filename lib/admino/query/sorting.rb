@@ -1,37 +1,52 @@
+require 'coercible'
 require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
 
 module Admino
   module Query
-    class Group
+    class Sorting
       attr_reader :params
       attr_reader :config
-      attr_reader :query_i18n_key
 
-      def initialize(config, params, query_i18n_key = nil)
+      def initialize(config, params)
         @config = config
         @params = ActiveSupport::HashWithIndifferentAccess.new(params)
-        @query_i18n_key = query_i18n_key
       end
 
       def augment_scope(scope)
         if active_scope
-          scope.send(active_scope)
+          scope.send(active_scope, ascendent? ? :asc : :desc)
         else
           scope
+        end
+      end
+
+      def ascendent?
+        if params[:sort_order] == 'desc'
+          false
+        elsif params[:sort_order].blank? && active_scope == default_scope
+          default_direction_is_ascendent?
+        else
+          true
         end
       end
 
       def active_scope
         if param_value && available_scopes.include?(param_value.to_sym)
           param_value.to_sym
+        elsif default_scope
+          default_scope
         else
           nil
         end
       end
 
-      def is_scope_active?(scope)
-        active_scope == scope
+      def default_scope
+        config.default_scope
+      end
+
+      def default_direction_is_ascendent?
+        config.default_direction != :desc
       end
 
       def param_value
@@ -39,14 +54,14 @@ module Admino
       end
 
       def param_name
-        config.name
+        :sorting
       end
 
       def available_scopes
-        [nil] + config.scopes
+        config.scopes
       end
 
-      def i18n_key
+      def scope_name
         config.name
       end
     end

@@ -18,6 +18,13 @@ module Admino
         expect(group.scopes).to eq [:one, :two]
       end
 
+      it 'allows #sortings declaration' do
+        sorting = config.sorting
+        expect(sorting.scopes).to eq [:by_title, :by_date]
+        expect(sorting.default_scope).to eq :by_title
+        expect(sorting.default_direction).to eq :desc
+      end
+
       it 'allows #starting_scope block declaration' do
         expect(config.starting_scope_callable.call).to eq 'start'
       end

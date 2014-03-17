@@ -17,6 +17,11 @@ module Admino
         config.add_group(name, scopes)
       end
 
+      def sorting(*args)
+        options = args.extract_options!
+        config.add_sorting_scopes(args, options)
+      end
+
       def starting_scope(&block)
         config.starting_scope_callable = block
       end

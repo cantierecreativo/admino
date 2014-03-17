@@ -7,28 +7,28 @@ module Admino
       let(:config) { Configuration::Group.new(:foo, [:bar]) }
       let(:params) { {} }
 
-      describe '#current_scope' do
+      describe '#active_scope' do
         context 'with no param' do
           let(:params) { {} }
 
-          it 'returns the param value for the field' do
-            expect(group.current_scope).to be_nil
+          it 'returns nil' do
+            expect(group.active_scope).to be_nil
           end
         end
 
         context 'with an invalid value' do
           let(:params) { { 'foo' => 'qux' } }
 
-          it 'returns the param value for the field' do
-            expect(group.current_scope).to be_nil
+          it 'returns nil' do
+            expect(group.active_scope).to be_nil
           end
         end
 
         context 'with a valid value' do
           let(:params) { { 'foo' => 'bar' } }
 
-          it 'returns nil' do
-            expect(group.current_scope).to eq :bar
+          it 'returns the scope name' do
+            expect(group.active_scope).to eq :bar
           end
         end
       end
