@@ -143,7 +143,7 @@ The presenter also offers a `#simple_form` method to make it work with [Simple F
 
 ### I18n
 
-To localize the search form labels, as well as group filter name and scopes, please refer to the following YAML file:
+To localize the search form labels, as well as the group filter names and scope links, please refer to the following YAML file:
 
 ```yaml
 en:
@@ -158,7 +158,6 @@ en:
           scopes:
             completed: 'Completed'
             pending: 'Pending'
-            all: 'All'
 ```
 
 ### Output customisation

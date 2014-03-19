@@ -27,15 +27,15 @@ module Admino
 
       describe '#scope_link' do
         subject { presenter.scope_link(:foo) }
+        let(:scope_active) { false }
 
         before do
-          filter_group.stub(:is_scope_active?).with(:foo).and_return(false)
+          filter_group.stub(:is_scope_active?).
+            with(:foo).and_return(scope_active)
         end
 
         context 'active CSS class' do
-          before do
-            filter_group.stub(:is_scope_active?).with(:foo).and_return(true)
-          end
+          let(:scope_active) { true }
 
           it 'adds an is-active class' do
             should have_tag(:a, with: { class: 'is-active' })
@@ -86,15 +86,23 @@ module Admino
       end
 
       describe '#scope_params' do
-        context 'if scope is nil' do
+        before do
+          filter_group.stub(:is_scope_active?).with(:foo).and_return(scope_active)
+        end
+
+        context 'if scope is active' do
+          let(:scope_active) { true }
+
           it 'deletes the filter_group param' do
-            expect(presenter.scope_params(nil)).not_to have_key 'filter_group'
+            expect(presenter.scope_params(:foo)).not_to have_key 'filter_group'
           end
         end
 
         context 'else' do
-          it 'deletes the filter_group param' do
-            expect(presenter.scope_params(:bar)[:filter_group]).to eq 'bar'
+          let(:scope_active) { false }
+
+          it 'is set as filter group value' do
+            expect(presenter.scope_params(:foo)[:filter_group]).to eq 'foo'
           end
         end
       end
