@@ -40,7 +40,6 @@ module Admino
       end
 
       def scope_name(scope)
-        scope ||= 'all'
         I18n.t(
           :"#{query_i18n_key}.#{i18n_key}.scopes.#{scope}",
           scope: 'query.filter_groups',

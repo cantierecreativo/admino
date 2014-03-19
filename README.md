@@ -46,8 +46,8 @@ Given a `Task` model with the following scopes:
 class Task < ActiveRecord::Base
   scope :text_matches, ->(text) { where(...) }
 
-  scope :completed, -> { where(...) }
-  scope :pending, -> { where(...) }
+  scope :completed, -> { where(completed: true) }
+  scope :pending, -> { where(completed: false) }
 
   scope :by_due_date, ->(direction) { order(due_date: direction) }
   scope :by_title, ->(direction) { order(title: direction) }
@@ -68,17 +68,17 @@ end
 
 Every query object can declare:
 
-* a starting scope, that is, the scope that will start the filtering/ordering chain;
-* a set of search fields, which represent model filtering scopes that require an input;
-* a set of filtering groups, each of which is composed by a set of filtering scopes;
-* a set of sorting methods, which represent model ordering scopes that can be used both in ascending and descending directions;
+* a **starting scope**, that is, the scope that will start the filtering/ordering chain;
+* a set of **search fields**, which represent model scopes that require an input to filter the result set;
+* a set of **filtering groups**, each of which is composed by a set of scopes that take no argument;
+* a set of **sorting scopes** that take a sigle argument (`:asc` or `:desc`) and thus are able to order the result set in both directions;
 
-Each query object instance takes a hash of params, and implements a `#scope` method that chains the various scopes and returns the final result set:
+Each query object instance gets initialized with a hash of params. The `#scope` method will then perform the chaining of the scopes based on the given params, returning the final result set:
 
 ```ruby
 params = {
   query: {
-    text_matches: 'giraffe'
+    text_matches: 'ASAP'
   },
   status: 'pending',
   sorting: 'by_title',
@@ -88,7 +88,7 @@ params = {
 tasks = TasksQuery.new(params).scope
 ```
 
-As you can guess, query objects can be great companions to index controller actions:
+As you may have guessed, query objects can be great companions to index controller actions:
 
 ```ruby
 class ProjectTasksController < ApplicationController
@@ -99,12 +99,14 @@ class ProjectTasksController < ApplicationController
 end
 ```
 
+But that's not all.
+
 ### Presenting search form and filters to the user
 
-Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate search forms and filters:
+Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate search forms and filtering links:
 
 ```erb
-<%# present the query object to be used in the view %>
+<%# instanciate the the query object presenter %>
 <% query = present(@query) %>
 
 <%# generate the search form %>
@@ -113,30 +115,27 @@ Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showca
     <%= q.label :text_matches %>
     <%= q.text_field :text_matches %>
   </p>
-  <%= # ... %>
   <p>
     <%= q.submit %>
   </p>
 <% end %>
 
-<%# generate the filters links (ie. status and assignation) %>
+<%# generate the filtering links %>
 <% query.filter_groups.each do |filter_group| %>
-  <div class="filter-group">
-    <h6><%= filter_group.name %></h6>
-    <ul>
-      <% filter_group.scopes.each do |scope| %>
-        <li>
-          <%= filter_group.scope_link(scope) %>
-        <li>
-      <% end %>
-    </ul>
-  </div>
+  <h6><%= filter_group.name %></h6>
+  <ul>
+    <% filter_group.scopes.each do |scope| %>
+      <li>
+        <%= filter_group.scope_link(scope) %>
+      <li>
+    <% end %>
+  </ul>
 <% end %>
 ```
 
-The search form gets automatically filled with the user last input, and a CSS class `is-active` gets added to the currently active filter scopes.
+The great thing is that the search form gets automatically filled in with the last input the user submitted, and a CSS class `is-active` gets added to the currently active filter scopes.
 
-If you need to present the different query filter groups in a different way, you can access to a particular group with the `#filter_group_by_name` method.
+If a particular filter has been clicked and is now active, it is possible to deactivate it by clicking it again.
 
 ### Simple Form support
 
@@ -152,8 +151,6 @@ en:
     attributes:
       tasks_query:
         text_matches: 'Contains text'
-        due_date_from: 'Due date after'
-        due_date_to: 'Due date before'
     filter_groups:
       tasks_query:
         status:
@@ -162,21 +159,15 @@ en:
             completed: 'Completed'
             pending: 'Pending'
             all: 'All'
-        assignation:
-          name: 'Filter by assignee'
-          scopes:
-            assigned: 'Assigned to someone'
-            not_assigned: 'Not assigned'
-            all: 'All'
 ```
 
 ### Output customisation
 
-Both `#form` and `#scope_link` methods allow a great amount of flexibility: please [refer to the tests]( to see all the possibile customisations available.
+The query object and its presenter implement a number of additional methods and optional arguments that allow a great amount of flexibility: please refer to the tests to see all the possibile customisations available.
 
 #### Overwriting the starting scope
 
-Suppose you have to filter the tasks based on `@current_user` work group. You can easily override the starting scope passing it as an argument to the `#scope` method:
+Suppose you have to filter the tasks based on the `@current_user` work group. You can easily provide an alternative starting scope from the controller passing it as an argument to the `#scope` method:
 
 ```ruby
 def index
@@ -189,27 +180,34 @@ end
 
 #### Coertions
 
-Admino uses the great [Coercible](https://github.com/solnic/coercible) to make automatic coertions from param strings to the type needed by the model named scope. 
+Admino can perform automatic coertions from a param string input to the type needed by the model named scope:
 
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  field :due_date_from, coerce: :to_date
+  field :due_date_to, coerce: :to_date
+end
+```
 The following coertions are available:
 
+* `:to_boolean`
 * `:to_constant`
-* `:to_symbol`
-* `:to_time`
 * `:to_date`
 * `:to_datetime`
-* `:to_boolean`
-* `:to_integer`
-* `:to_float`
 * `:to_decimal`
+* `:to_float`
+* `:to_integer`
+* `:to_symbol`
+* `:to_time`
 
-If a specific coercion cannot be performed with the input, the relative scope won't be chained.
+If a specific coercion cannot be performed with the provided input, the scope won't be chained.
 
-Please see [`Coercible::Coercer::String`](https://github.com/solnic/coercible/blob/master/lib/coercible/coercer/string.rb)  for details.
+Please see the [`Coercible::Coercer::String`](https://github.com/solnic/coercible/blob/master/lib/coercible/coercer/string.rb) class for details.
 
 ### Ending the scope chain
 
-It's very common to require a pagination for the results. `Admino::Query::Base` DSL makes it easy to append any scope to the end of the chain:
+It's very common ie. to paginate the result set. `Admino::Query::Base` DSL makes it easy to append any scope to the end of the chain:
 
 ```ruby
 class TasksQuery < Admino::Query::Base

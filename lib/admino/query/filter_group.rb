@@ -23,7 +23,7 @@ module Admino
       end
 
       def active_scope
-        if param_value && available_scopes.include?(param_value.to_sym)
+        if param_value && scopes.include?(param_value.to_sym)
           param_value.to_sym
         else
           nil
@@ -42,8 +42,8 @@ module Admino
         config.name
       end
 
-      def available_scopes
-        [nil] + config.scopes
+      def scopes
+        config.scopes
       end
 
       def i18n_key

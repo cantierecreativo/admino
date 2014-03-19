@@ -36,7 +36,7 @@ module Admino
       end
 
       def active_scope
-        if param_value && available_scopes.include?(param_value.to_sym)
+        if param_value && scopes.include?(param_value.to_sym)
           param_value.to_sym
         elsif default_scope
           default_scope
@@ -65,7 +65,7 @@ module Admino
         :sorting
       end
 
-      def available_scopes
+      def scopes
         config.scopes
       end
     end
