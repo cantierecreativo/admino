@@ -7,7 +7,7 @@ require 'active_support/core_ext/hash'
 
 module Admino
   module Query
-    class GroupPresenter < Showcase::Presenter
+    class FilterGroupPresenter < Showcase::Presenter
       def scope_link(scope, *args)
         options = args.extract_options!
 
@@ -40,10 +40,10 @@ module Admino
       end
 
       def scope_name(scope)
-        scope ||= 'none'
+        scope ||= 'all'
         I18n.t(
           :"#{query_i18n_key}.#{i18n_key}.scopes.#{scope}",
-          scope: 'query.groups',
+          scope: 'query.filter_groups',
           default: [
             :"#{i18n_key}.scopes.#{scope}",
             scope.to_s.titleize
@@ -54,7 +54,7 @@ module Admino
       def name
         I18n.t(
           :"#{query_i18n_key}.#{i18n_key}.name",
-          scope: 'query.groups',
+          scope: 'query.filter_groups',
           default: [
             :"#{i18n_key}.name",
             i18n_key.to_s.titleize

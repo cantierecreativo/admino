@@ -17,7 +17,7 @@ module Admino
         end
       end
 
-      class Group
+      class FilterGroup
         attr_reader :name
         attr_reader :scopes
 
@@ -48,14 +48,14 @@ module Admino
       end
 
       attr_reader :fields
-      attr_reader :groups
+      attr_reader :filter_groups
       attr_reader :sorting
       attr_accessor :starting_scope_callable
       attr_accessor :ending_scope_callable
 
       def initialize
         @fields = []
-        @groups = []
+        @filter_groups = []
       end
 
       def add_field(name, options = {})
@@ -64,9 +64,9 @@ module Admino
         end
       end
 
-      def add_group(name, scopes)
-        Group.new(name, scopes).tap do |group|
-          self.groups << group
+      def add_filter_group(name, scopes)
+        FilterGroup.new(name, scopes).tap do |filter_group|
+          self.filter_groups << filter_group
         end
       end
 

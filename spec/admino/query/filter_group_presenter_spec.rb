@@ -2,21 +2,21 @@ require 'spec_helper'
 
 module Admino
   module Query
-    describe GroupPresenter do
-      subject(:presenter) { GroupPresenter.new(group, view) }
+    describe FilterGroupPresenter do
+      subject(:presenter) { FilterGroupPresenter.new(filter_group, view) }
       let(:view) { RailsViewContext.new }
-      let(:group) do
+      let(:filter_group) do
         double(
-          'Group',
+          'FilterGroup',
           query_i18n_key: :query_name,
-          i18n_key: :group,
-          param_name: :group
+          i18n_key: :filter_group,
+          param_name: :filter_group
         )
       end
       let(:request_object) do
         double(
           'ActionDispatch::Request',
-          query_parameters: { 'group' => 'bar' },
+          query_parameters: { 'filter_group' => 'bar' },
           path: '/'
         )
       end
@@ -29,12 +29,12 @@ module Admino
         subject { presenter.scope_link(:foo) }
 
         before do
-          group.stub(:is_scope_active?).with(:foo).and_return(false)
+          filter_group.stub(:is_scope_active?).with(:foo).and_return(false)
         end
 
         context 'active CSS class' do
           before do
-            group.stub(:is_scope_active?).with(:foo).and_return(true)
+            filter_group.stub(:is_scope_active?).with(:foo).and_return(true)
           end
 
           it 'adds an is-active class' do
@@ -87,14 +87,14 @@ module Admino
 
       describe '#scope_params' do
         context 'if scope is nil' do
-          it 'deletes the group param' do
-            expect(presenter.scope_params(nil)).not_to have_key 'group'
+          it 'deletes the filter_group param' do
+            expect(presenter.scope_params(nil)).not_to have_key 'filter_group'
           end
         end
 
         context 'else' do
-          it 'deletes the group param' do
-            expect(presenter.scope_params(:bar)[:group]).to eq 'bar'
+          it 'deletes the filter_group param' do
+            expect(presenter.scope_params(:bar)[:filter_group]).to eq 'bar'
           end
         end
       end
@@ -104,18 +104,18 @@ module Admino
           before do
             I18n.backend.store_translations(
               :en,
-              query: { groups: { query_name: { group: { name: 'NAME' } } } }
+              query: { filter_groups: { query_name: { filter_group: { name: 'NAME' } } } }
             )
           end
 
-          it 'returns a I18n translatable name for the group' do
+          it 'returns a I18n translatable name for the filter_group' do
             expect(presenter.name).to eq 'NAME'
           end
         end
 
         context 'if no translation is available' do
-          it 'falls back to a titleized version of the group name' do
-            expect(presenter.name).to eq 'Group'
+          it 'falls back to a titleized version of the filter_group name' do
+            expect(presenter.name).to eq 'Filter Group'
           end
         end
       end
@@ -125,7 +125,7 @@ module Admino
           before do
             I18n.backend.store_translations(
               :en,
-              query: { groups: { query_name: { group: { scopes: { bar: 'NAME' } } } } }
+              query: { filter_groups: { query_name: { filter_group: { scopes: { bar: 'NAME' } } } } }
             )
           end
 

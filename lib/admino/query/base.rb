@@ -13,7 +13,7 @@ module Admino
       extend Dsl
 
       attr_reader :params
-      attr_reader :groups
+      attr_reader :filter_groups
       attr_reader :fields
       attr_reader :sorting
 
@@ -25,7 +25,7 @@ module Admino
         @params = ActiveSupport::HashWithIndifferentAccess.new(params)
         @config = config
 
-        init_groups
+        init_filter_groups
         init_fields
         init_sorting
       end
@@ -39,7 +39,7 @@ module Admino
 
         scope_builder = starting_scope
 
-        scope_augmenters = fields + groups
+        scope_augmenters = fields + filter_groups
         scope_augmenters << sorting if sorting
 
         scope_augmenters.each do |field|
@@ -61,12 +61,12 @@ module Admino
         @config || self.class.config
       end
 
-      def groups
-        @groups.values
+      def filter_groups
+        @filter_groups.values
       end
 
-      def group_by_name(name)
-        @groups[name]
+      def filter_group_by_name(name)
+        @filter_groups[name]
       end
 
       def fields
@@ -79,11 +79,11 @@ module Admino
 
       private
 
-      def init_groups
-        @groups = {}
+      def init_filter_groups
+        @filter_groups = {}
         i18n_key = self.class.model_name.i18n_key
-        config.groups.each do |config|
-          @groups[config.name] = Group.new(config, params, i18n_key)
+        config.filter_groups.each do |config|
+          @filter_groups[config.name] = FilterGroup.new(config, params, i18n_key)
         end
       end
 

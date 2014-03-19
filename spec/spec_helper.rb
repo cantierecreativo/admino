@@ -35,7 +35,7 @@ class TestQuery < Admino::Query::Base
   field :foo
   field :starting_from, coerce: :to_date
 
-  group :bar, [:one, :two]
+  filter_by :bar, [:one, :two]
 
   sorting :by_title, :by_date,
           default_scope: :by_title,

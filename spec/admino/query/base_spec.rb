@@ -34,19 +34,19 @@ module Admino
         end
       end
 
-      context 'with a declared group' do
+      context 'with a declared filter_group' do
         let(:config) { Configuration.new }
-        let(:group_config) { config.add_group(:group, [:one, :two]) }
+        let(:filter_group_config) { config.add_filter_group(:filter_group, [:one, :two]) }
 
         before do
-          group_config
+          filter_group_config
         end
 
-        it 'returns a configured Group' do
-          group = query.group_by_name(:group)
-          expect(group.config).to eq group_config
-          expect(group.params).to eq params
-          expect(group.i18n_key).to eq :group
+        it 'returns a configured FilterGroup' do
+          filter_group = query.filter_group_by_name(:filter_group)
+          expect(filter_group.config).to eq filter_group_config
+          expect(filter_group.params).to eq params
+          expect(filter_group.i18n_key).to eq :filter_group
         end
       end
 
@@ -107,15 +107,15 @@ module Admino
           end
         end
 
-        context 'with a set of fields and groups' do
+        context 'with a set of fields and filter_groups' do
           let(:field_config) { config.add_field(:field) }
-          let(:group_config) { config.add_group(:group, [:one, :two]) }
+          let(:filter_group_config) { config.add_filter_group(:filter_group, [:one, :two]) }
           let(:scope_chained_with_field) { double('scope 1') }
           let(:final_chain) { double('scope 2') }
 
           before do
             field_config
-            group_config
+            filter_group_config
             query
 
             query.field_by_name(:field).
@@ -123,7 +123,7 @@ module Admino
               with(starting_scope).
               and_return(scope_chained_with_field)
 
-            query.group_by_name(:group).
+            query.filter_group_by_name(:filter_group).
               stub(:augment_scope).
               with(scope_chained_with_field).
               and_return(final_chain)

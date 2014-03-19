@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module Admino
   module Query
-    describe Group do
-      subject(:group) { Group.new(config, params) }
-      let(:config) { Configuration::Group.new(:foo, [:bar]) }
+    describe FilterGroup do
+      subject(:filter_group) { FilterGroup.new(config, params) }
+      let(:config) { Configuration::FilterGroup.new(:foo, [:bar]) }
       let(:params) { {} }
 
       describe '#active_scope' do
@@ -12,7 +12,7 @@ module Admino
           let(:params) { {} }
 
           it 'returns nil' do
-            expect(group.active_scope).to be_nil
+            expect(filter_group.active_scope).to be_nil
           end
         end
 
@@ -20,7 +20,7 @@ module Admino
           let(:params) { { 'foo' => 'qux' } }
 
           it 'returns nil' do
-            expect(group.active_scope).to be_nil
+            expect(filter_group.active_scope).to be_nil
           end
         end
 
@@ -28,19 +28,19 @@ module Admino
           let(:params) { { 'foo' => 'bar' } }
 
           it 'returns the scope name' do
-            expect(group.active_scope).to eq :bar
+            expect(filter_group.active_scope).to eq :bar
           end
         end
       end
 
       describe '#augment_scope' do
-        let(:result) { group.augment_scope(scope) }
+        let(:result) { filter_group.augment_scope(scope) }
         let(:scope) { ScopeMock.new('original') }
 
         context 'if the field has a value' do
           let(:params) { { 'foo' => 'bar' } }
 
-          it 'returns the original scope chained with the group scope' do
+          it 'returns the original scope chained with the filter_group scope' do
             expect(result.chain).to eq [:bar, []]
           end
         end
@@ -56,7 +56,7 @@ module Admino
         let(:params) { { 'foo' => 'bar' } }
 
         it 'returns true if the provided scope is the one currently active' do
-          expect(group.is_scope_active?(:bar)).to be_true
+          expect(filter_group.is_scope_active?(:bar)).to be_true
         end
       end
     end

@@ -12,10 +12,10 @@ module Admino
         expect(field.coerce_to).to eq :to_date
       end
 
-      it 'allows #group declaration' do
-        group = config.groups.first
-        expect(group.name).to eq :bar
-        expect(group.scopes).to eq [:one, :two]
+      it 'allows #filter_by declaration' do
+        filter_group = config.filter_groups.first
+        expect(filter_group.name).to eq :bar
+        expect(filter_group.scopes).to eq [:one, :two]
       end
 
       it 'allows #sortings declaration' do

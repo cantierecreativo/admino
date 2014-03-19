@@ -3,7 +3,7 @@ require 'active_support/core_ext/hash'
 
 module Admino
   module Query
-    class Group
+    class FilterGroup
       attr_reader :params
       attr_reader :config
       attr_reader :query_i18n_key

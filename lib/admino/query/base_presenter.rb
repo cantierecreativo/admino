@@ -3,7 +3,7 @@ require 'showcase'
 module Admino
   module Query
     class BasePresenter < Showcase::Presenter
-      presents_collection :groups
+      presents_collection :filter_groups
       presents :sorting
 
       def form(options = {}, &block)
