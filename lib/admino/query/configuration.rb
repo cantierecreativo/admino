@@ -1,7 +1,7 @@
 module Admino
   module Query
     class Configuration
-      class Field
+      class SearchField
         attr_reader :name
         attr_reader :coerce_to
 
@@ -47,20 +47,20 @@ module Admino
         end
       end
 
-      attr_reader :fields
+      attr_reader :search_fields
       attr_reader :filter_groups
       attr_reader :sorting
       attr_accessor :starting_scope_callable
       attr_accessor :ending_scope_callable
 
       def initialize
-        @fields = []
+        @search_fields = []
         @filter_groups = []
       end
 
-      def add_field(name, options = {})
-        Field.new(name, options).tap do |field|
-          self.fields << field
+      def add_search_field(name, options = {})
+        SearchField.new(name, options).tap do |search_field|
+          self.search_fields << search_field
         end
       end
 

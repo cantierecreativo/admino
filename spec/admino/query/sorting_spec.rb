@@ -73,7 +73,7 @@ module Admino
         context 'with "desc" value' do
           let(:params) { { 'sort_order' => 'desc' } }
 
-          it 'returns the param value for the field' do
+          it 'returns the param value for the search_field' do
             expect(sorting).not_to be_ascending
           end
         end
@@ -92,7 +92,7 @@ module Admino
         let(:result) { sorting.augment_scope(scope) }
         let(:scope) { ScopeMock.new('original') }
 
-        context 'if the field has a value' do
+        context 'if the search_field has a value' do
           let(:params) { { 'sorting' => 'by_title', 'sort_order' => 'desc' } }
 
           it 'returns the original scope chained with the current scope' do

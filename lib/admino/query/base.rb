@@ -14,7 +14,7 @@ module Admino
 
       attr_reader :params
       attr_reader :filter_groups
-      attr_reader :fields
+      attr_reader :search_fields
       attr_reader :sorting
 
       def self.i18n_scope
@@ -26,7 +26,7 @@ module Admino
         @config = config
 
         init_filter_groups
-        init_fields
+        init_search_fields
         init_sorting
       end
 
@@ -39,11 +39,11 @@ module Admino
 
         scope_builder = starting_scope
 
-        scope_augmenters = fields + filter_groups
+        scope_augmenters = search_fields + filter_groups
         scope_augmenters << sorting if sorting
 
-        scope_augmenters.each do |field|
-          scope_builder = field.augment_scope(scope_builder)
+        scope_augmenters.each do |search_field|
+          scope_builder = search_field.augment_scope(scope_builder)
         end
 
         if config.ending_scope_callable
@@ -69,12 +69,12 @@ module Admino
         @filter_groups[name]
       end
 
-      def fields
-        @fields.values
+      def search_fields
+        @search_fields.values
       end
 
-      def field_by_name(name)
-        @fields[name]
+      def search_field_by_name(name)
+        @search_fields[name]
       end
 
       private
@@ -87,10 +87,10 @@ module Admino
         end
       end
 
-      def init_fields
-        @fields = {}
-        config.fields.each do |config|
-          @fields[config.name] = Field.new(config, params)
+      def init_search_fields
+        @search_fields = {}
+        config.search_fields.each do |config|
+          @search_fields[config.name] = SearchField.new(config, params)
         end
       end
 

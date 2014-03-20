@@ -6,10 +6,10 @@ module Admino
       let(:config) { TestQuery.config }
       let(:instance) { TestQuery.new }
 
-      it 'allows #field declaration' do
-        field = config.fields.last
-        expect(field.name).to eq :starting_from
-        expect(field.coerce_to).to eq :to_date
+      it 'allows #search_field declaration' do
+        search_field = config.search_fields.last
+        expect(search_field.name).to eq :starting_from
+        expect(search_field.coerce_to).to eq :to_date
       end
 
       it 'allows #filter_by declaration' do
@@ -33,13 +33,13 @@ module Admino
         expect(config.ending_scope_callable.call).to eq 'end'
       end
 
-      context 'with a field' do
-        let(:field) { double('Field', value: 'value') }
+      context 'with a search_field' do
+        let(:search_field) { double('SearchField', value: 'value') }
 
         before do
-          instance.stub(:field_by_name).
+          instance.stub(:search_field_by_name).
             with(:foo).
-            and_return(field)
+            and_return(search_field)
         end
 
         it 'it generates a getter' do

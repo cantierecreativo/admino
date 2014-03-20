@@ -32,8 +32,8 @@ class ScopeMock
 end
 
 class TestQuery < Admino::Query::Base
-  field :foo
-  field :starting_from, coerce: :to_date
+  search_field :foo
+  search_field :starting_from, coerce: :to_date
 
   filter_by :bar, [:one, :two]
 

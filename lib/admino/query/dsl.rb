@@ -5,11 +5,11 @@ module Admino
         @config ||= Admino::Query::Configuration.new
       end
 
-      def field(name, options = {})
-        config.add_field(name, options)
+      def search_field(name, options = {})
+        config.add_search_field(name, options)
 
         define_method name do
-          field_by_name(name).value
+          search_field_by_name(name).value
         end
       end
 

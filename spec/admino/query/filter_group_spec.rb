@@ -37,7 +37,7 @@ module Admino
         let(:result) { filter_group.augment_scope(scope) }
         let(:scope) { ScopeMock.new('original') }
 
-        context 'if the field has a value' do
+        context 'if the search_field has a value' do
           let(:params) { { 'foo' => 'bar' } }
 
           it 'returns the original scope chained with the filter_group scope' do

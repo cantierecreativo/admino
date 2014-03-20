@@ -19,18 +19,18 @@ module Admino
         end
       end
 
-      context 'with a declared field' do
+      context 'with a declared search_field' do
         let(:config) { Configuration.new }
-        let(:field_config) { config.add_field(:field) }
+        let(:search_field_config) { config.add_search_field(:search_field) }
 
         before do
-          field_config
+          search_field_config
         end
 
-        it 'returns a configured Field' do
-          field = query.field_by_name(:field)
-          expect(field.config).to eq field_config
-          expect(field.params).to eq params
+        it 'returns a configured SearchField' do
+          search_field = query.search_field_by_name(:search_field)
+          expect(search_field.config).to eq search_field_config
+          expect(search_field.params).to eq params
         end
       end
 
@@ -107,25 +107,25 @@ module Admino
           end
         end
 
-        context 'with a set of fields and filter_groups' do
-          let(:field_config) { config.add_field(:field) }
+        context 'with a set of search_fields and filter_groups' do
+          let(:search_field_config) { config.add_search_field(:search_field) }
           let(:filter_group_config) { config.add_filter_group(:filter_group, [:one, :two]) }
-          let(:scope_chained_with_field) { double('scope 1') }
+          let(:scope_chained_with_search_field) { double('scope 1') }
           let(:final_chain) { double('scope 2') }
 
           before do
-            field_config
+            search_field_config
             filter_group_config
             query
 
-            query.field_by_name(:field).
+            query.search_field_by_name(:search_field).
               stub(:augment_scope).
               with(starting_scope).
-              and_return(scope_chained_with_field)
+              and_return(scope_chained_with_search_field)
 
             query.filter_group_by_name(:filter_group).
               stub(:augment_scope).
-              with(scope_chained_with_field).
+              with(scope_chained_with_search_field).
               and_return(final_chain)
           end
 

@@ -1,7 +1,7 @@
 require 'admino/query/base'
 require 'admino/query/base_presenter'
 require 'admino/query/configuration'
-require 'admino/query/field'
+require 'admino/query/search_field'
 require 'admino/query/filter_group'
 require 'admino/query/filter_group_presenter'
 require 'admino/query/sorting'

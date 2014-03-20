@@ -1,3 +1,7 @@
+# v0.0.5
+
+* Rename Field into SearchField
+
 # v0.0.4
 
 * Rename Group into FilterGroup

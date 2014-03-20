@@ -4,7 +4,7 @@ require 'active_support/core_ext/hash'
 
 module Admino
   module Query
-    class Field
+    class SearchField
       attr_reader :params
       attr_reader :config
 
