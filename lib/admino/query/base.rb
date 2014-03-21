@@ -96,7 +96,8 @@ module Admino
 
       def init_sorting
         if config.sorting
-          @sorting = Sorting.new(config.sorting, params)
+          i18n_key = self.class.model_name.i18n_key
+          @sorting = Sorting.new(config.sorting, params, i18n_key)
         end
       end
     end

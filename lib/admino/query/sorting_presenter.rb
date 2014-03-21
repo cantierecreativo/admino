@@ -3,8 +3,10 @@ require 'showcase'
 module Admino
   module Query
     class SortingPresenter < Showcase::Presenter
-      def scope_link(scope, label, *args)
+      def scope_link(scope, *args)
         options = args.extract_options!
+
+        label = args.first || scope_name(scope)
 
         desc_class = options.delete(:desc_class) { 'is-desc' }
         asc_class = options.delete(:asc_class) { 'is-asc' }
@@ -34,6 +36,14 @@ module Admino
         end
 
         params
+      end
+
+      def scope_name(scope)
+        I18n.t(
+          :"#{query_i18n_key}.#{scope}",
+          scope: 'query.sorting_scopes',
+          default: scope.to_s.titleize.capitalize
+        )
       end
     end
   end

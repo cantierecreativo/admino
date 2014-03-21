@@ -123,7 +123,7 @@ module Admino
 
         context 'if no translation is available' do
           it 'falls back to a titleized version of the filter_group name' do
-            expect(presenter.name).to eq 'Filter Group'
+            expect(presenter.name).to eq 'Filter group'
           end
         end
       end

@@ -5,7 +5,13 @@ module Admino
     describe SortingPresenter do
       subject(:presenter) { SortingPresenter.new(sorting, view) }
       let(:view) { RailsViewContext.new }
-      let(:sorting) { double('Sorting', default_scope: 'by_name') }
+      let(:sorting) do
+        double(
+          'Sorting',
+          default_scope: 'by_name',
+          query_i18n_key: 'query_name'
+        )
+      end
       let(:request_object) do
         double(
           'ActionDispatch::Request',
@@ -158,6 +164,27 @@ module Admino
 
           it 'sets the sorting order to ascending' do
             subject[:sort_order] == 'asc'
+          end
+        end
+      end
+
+      describe '#scope_name' do
+        context do
+          before do
+            I18n.backend.store_translations(
+              :en,
+              query: { sorting_scopes: { query_name: { by_name: 'Sort by name' } } }
+            )
+          end
+
+          it 'returns a I18n translatable name for the scope' do
+            expect(presenter.scope_name(:by_name)).to eq 'Sort by name'
+          end
+        end
+
+        context 'if no translation is available' do
+          it 'falls back to a titleized version of the scope name' do
+            expect(presenter.scope_name(:by_name)).to eq 'By name'
           end
         end
       end

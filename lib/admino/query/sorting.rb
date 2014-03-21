@@ -7,8 +7,9 @@ module Admino
     class Sorting
       attr_reader :params
       attr_reader :config
+      attr_reader :query_i18n_key
 
-      def initialize(config, params)
+      def initialize(config, params, query_i18n_key = nil)
         @config = config
         @params = ActiveSupport::HashWithIndifferentAccess.new(params)
       end

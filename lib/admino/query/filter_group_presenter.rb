@@ -56,7 +56,7 @@ module Admino
           scope: 'query.filter_groups',
           default: [
             :"#{i18n_key}.name",
-            i18n_key.to_s.titleize
+            i18n_key.to_s.titleize.capitalize
           ]
         )
       end
