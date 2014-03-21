@@ -38,68 +38,163 @@ And then execute:
 
 ## Admino::Query::Base
 
-A subclass of `Admino::Query::Base` represents a [Query object](http://martinfowler.com/eaaCatalog/queryObject.html), that is, an object responsible for returning a result set (ie. an `ActiveRecord::Relation`) based on business rules (ie. action params).
+`Admino::Query::Base` implements the [Query object](http://martinfowler.com/eaaCatalog/queryObject.html) pattern, that is, an object responsible for returning a result set (ie. an `ActiveRecord::Relation`) based on business rules.
 
-Given a `Task` model with the following scopes:
-
-```ruby
-class Task < ActiveRecord::Base
-  scope :text_matches, ->(text) { where(...) }
-
-  scope :completed, -> { where(completed: true) }
-  scope :pending, -> { where(completed: false) }
-
-  scope :by_due_date, ->(direction) { order(due_date: direction) }
-  scope :by_title, ->(direction) { order(title: direction) }
-end
-```
-
-The following `TasksQuery` class can be created:
+Given a `Task` model, we can generate a `TasksQuery` query object subclassing `Admino::Query::Base`:
 
 ```ruby
 class TasksQuery < Admino::Query::Base
-  starting_scope { ProjectTask.all }
-
-  field :text_matches
-  filter_by :status, [:completed, :pending]
-  sorting :by_due_date, :by_title
 end
 ```
 
-Every query object can declare:
-
-* a **starting scope**, that is, the scope that will start the filtering/ordering chain;
-* a set of **search fields**, which represent model scopes that require an input to filter the result set;
-* a set of **filtering groups**, each of which is composed by a set of scopes that take no argument;
-* a set of **sorting scopes** that take a sigle argument (`:asc` or `:desc`) and thus are able to order the result set in both directions;
-
-Each query object instance gets initialized with a hash of params. The `#scope` method will then perform the chaining of the scopes based on the given params, returning the final result set:
+Each query object gets initialized with a hash of params, and features a `#scope` method that returns the filtered/sorted result set. As you may have guessed, query objects can be great companions to index controller actions:
 
 ```ruby
-params = {
-  query: {
-    text_matches: 'ASAP'
-  },
-  status: 'pending',
-  sorting: 'by_title',
-  sort_order: 'desc'
-}
-
-tasks = TasksQuery.new(params).scope
-```
-
-As you may have guessed, query objects can be great companions to index controller actions:
-
-```ruby
-class ProjectTasksController < ApplicationController
+class TasksController < ApplicationController
   def index
     @query = TasksQuery.new(params)
-    @project_tasks = @query.scope
+    @tasks = @query.scope
   end
 end
 ```
 
-But that's not all.
+### Building the query itself
+
+You can specify how a `TaskQuery` must build a result set through a simple DSL. 
+
+#### `starting_scope`
+
+The `starting_scope` method is in charge of defining the scope that will start the filtering/ordering chain:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  starting_scope { Task.all }
+end
+
+Task.create(title: 'Low priority task')
+
+TaskQuery.new.scope.count # => 1
+```
+
+#### `search_field`
+
+Once you define the following field:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  search_field :title_matches
+end
+```
+The `#scope` method will check the presence of the `params[:query][:title_matches]` key. If it finds it, it will augment the query with a
+named scope called `:title_matches`, expected to be found within the `Task` model, that needs to accept an argument.
+
+```ruby
+class Task < ActiveRecord::Base
+  scope :title_matches, ->(text) { 
+    where('title ILIKE ?', "%#{text}%") 
+  }
+end
+
+Task.create(title: 'Low priority task')
+Task.create(title: 'Fix me ASAP!!1!')
+
+TaskQuery.new.scope.count # => 2
+TaskQuery.new(query: { title_matches: 'ASAP' }).scope.count # => 1
+```
+
+#### `filter_by`
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  filter_by :status, [:completed, :pending]
+end
+```
+
+Just like a search field, with a declared filter group the `#scope` method will check the presence of a `params[:query][:status]` key. If it finds it (and its value corresponds to one of the declared scopes) it will augment the query the scope itself:
+
+```ruby
+class Task < ActiveRecord::Base
+  scope :completed, -> { where(completed: true) }
+  scope :pending,   -> { where(completed: false) }
+end
+
+Task.create(title: 'First task', completed: true)
+Task.create(title: 'Second task', completed: true)
+Task.create(title: 'Third task', completed: false)
+
+TaskQuery.new.scope.count # => 3
+TaskQuery.new(query: { status: 'completed' }).scope.count # => 2
+TaskQuery.new(query: { status: 'pending' }).scope.count # => 1
+TaskQuery.new(query: { status: 'foobar' }).scope.count # => 3
+```
+
+#### `sorting`
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  sorting :by_due_date, :by_title
+end
+```
+
+Once you declare some sorting scopes, the query object looks for a `params[:sorting]` key. If it exists (and corresponds to one of the declared scopes), it will augment the query with the scope itself. The model named scope will be called passing an argument that represents the direction of sorting (`:asc` or `:desc`).
+
+The direction passed to the scope will depend on the value of `params[:sort_order]`, and will default to `:asc`:
+
+```ruby
+class Task < ActiveRecord::Base
+  scope :by_due_date, ->(direction) { order(due_date: direction) }
+  scope :by_title, ->(direction) { order(title: direction) }
+end
+
+expired_task = Task.create(due_date: 1.year.ago)
+future_task = Task.create(due_date: 1.week.since)
+
+TaskQuery.new(sorting: 'by_due_date', sort_order: 'desc').scope # => [ future_task, expired_task ]
+TaskQuery.new(sorting: 'by_due_date', sort_order: 'asc').scope  # => [ expired_task, future_task ]
+TaskQuery.new(sorting: 'by_due_date').scope                     # => [ expired_task, future_task ]
+```
+
+#### `ending_scope`
+
+It's very common ie. to paginate a result set. The block declared in the `ending_scope` block will be always appended to the end of the chain:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  ending_scope { |q| page(q.params[:page]) }
+end
+```
+
+### Inspecting the query state
+
+A query object supports various methods to inspect the available search fields, filters and sortings, and their state:
+
+```ruby
+query = TaskQuery.new
+query.search_fields  # => [ #<Admino::Query::SearchField>, ... ]
+query.filter_groups  # => [ #<Admino::Query::FilterGroup>, ... ]
+
+search_field = query.search_field_by_name(:title_matches)
+
+search_field.name      # => :title_matches 
+search_field.present?  # => true
+search_field.value     # => 'ASAP'
+
+filter_group = query.filter_group_by_name(:status)
+
+filter_group.name                        # => :status
+filter_group.scopes                      # => [ :completed, :pending ]
+filter_group.active_scope                # => :completed
+filter_group.is_scope_active?(:pending)  # => false
+
+sorting = query.sorting                  # => #<Admino::Query::Sorting>
+sorting.scopes                           # => [ :by_title, :by_due_date ]
+sorting.active_scope                     # => :by_due_date
+sorting.is_scope_active?(:by_title)      # => false
+sorting.ascending?                       # => true
+```
 
 ### Presenting search form and filters to the user
 
@@ -112,8 +207,8 @@ Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showca
 <%# generate the search form %>
 <%= query.form do |q| %>
   <p>
-    <%= q.label :text_matches %>
-    <%= q.text_field :text_matches %>
+    <%= q.label :title_matches %>
+    <%= q.text_field :title_matches %>
   </p>
   <p>
     <%= q.submit %>
@@ -131,11 +226,25 @@ Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showca
     <% end %>
   </ul>
 <% end %>
+
+<%# generate the sorting links %>
+<h6>Sort by</h6>
+<ul>
+  <% query.sorting.scopes.each do |scope| %>
+    <li>
+      <%= query.sorting.scope_link(scope) %>
+    </li>
+  <% end %>
+</ul>
 ```
 
-The great thing is that the search form gets automatically filled in with the last input the user submitted, and a CSS class `is-active` gets added to the currently active filter scopes.
+The great thing is that:
 
-If a particular filter has been clicked and is now active, it is possible to deactivate it by clicking it again.
+* the search form gets automatically filled in with the last input the user submitted
+* a `is-active` CSS class gets added to the currently active filter scopes
+* if a particular filter link has been clicked and is now active, it is possible to deactivate it by clicking on the link again
+* a `is-asc`/`is-desc` CSS class gets added to the currently active sorting scope
+* if a particular sorting scope link has been clicked and is now in ascending order, it is possible to make it descending by clicking on the link again
 
 ### Simple Form support
 
@@ -150,7 +259,7 @@ en:
   query:
     attributes:
       tasks_query:
-        text_matches: 'Contains text'
+        title_matches: 'Title contains'
     filter_groups:
       tasks_query:
         status:
@@ -158,13 +267,17 @@ en:
           scopes:
             completed: 'Completed'
             pending: 'Pending'
+    sorting_scopes:
+      task_query:
+        by_due_date: 'By due date'
+        by_title: 'By title'
 ```
 
 ### Output customisation
 
-The query object and its presenter implement a number of additional methods and optional arguments that allow a great amount of flexibility: please refer to the tests to see all the possibile customisations available.
+The presenter supports a number of optional arguments that allow a great amount of flexibility regarding customisation of CSS classes, labels and HTML attributes. Please refer to the tests for the details.
 
-#### Overwriting the starting scope
+### Overwriting the starting scope
 
 Suppose you have to filter the tasks based on the `@current_user` work group. You can easily provide an alternative starting scope from the controller passing it as an argument to the `#scope` method:
 
@@ -175,9 +288,7 @@ def index
 end
 ```
 
-### Default sortings
-
-#### Coertions
+### Coertions
 
 Admino can perform automatic coertions from a param string input to the type needed by the model named scope:
 
@@ -204,13 +315,16 @@ If a specific coercion cannot be performed with the provided input, the scope wo
 
 Please see the [`Coercible::Coercer::String`](https://github.com/solnic/coercible/blob/master/lib/coercible/coercer/string.rb) class for details.
 
-### Ending the scope chain
+### Default sorting
 
-It's very common ie. to paginate the result set. `Admino::Query::Base` DSL makes it easy to append any scope to the end of the chain:
+If you need to setup a default sorting, you can pass some optional arguments to a `scoping` declaration:
 
 ```ruby
 class TasksQuery < Admino::Query::Base
-  ending_scope { |q| page(q.params[:page]) }
+  # ...
+  sorting :by_due_date, :by_title, 
+          default_scope: :by_due_date, 
+          default_direction: :desc
 end
 ```
 
