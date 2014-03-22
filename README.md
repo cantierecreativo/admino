@@ -47,7 +47,7 @@ class TasksQuery < Admino::Query::Base
 end
 ```
 
-Each query object gets initialized with a hash of params, and features a `#scope` method that returns the filtered/sorted result set. As you may have guessed, query objects can be great companions to index controller actions:
+Each query object gets initialized with a hash of params, and features a `#scope` method that returns the filtered/sorted result set. As you may have guessed, query objects can be great companions to index actions:
 
 ```ruby
 class TasksController < ApplicationController
@@ -348,14 +348,14 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
     <tr>
       <th role='title'>Title</th>
       <th role='completed'>Completed</th>
-      <th role='due_date'>Due date</th>
+      <th role='due-date'>Due date</th>
     </tr>
   <thead>
   <tbody>
     <tr id='task_1' class='is-even'>
       <td role='title'>Call mum ASAP</td>
       <td role='completed'>✓</td>
-      <td role='due_date'>2013-02-04</td>
+      <td role='due-date'>2013-02-04</td>
     </tr>
     <tr id='task_2' class='is-odd'>
       <!-- ... -->
@@ -422,7 +422,7 @@ This generates links that allow the visitor to sort the result set in ascending 
       <th role='title'>
         <a href="/admin/tasks?sorting=by_title&sort_order=desc" class='is-asc'>Title</a>
       </th>
-      <th role='due_date'>
+      <th role='due-date'>
         <a href="/admin/tasks?sorting=by_due_date&sort_order=asc" class='is-asc'>Due date</a>
       </th>
     </tr>
