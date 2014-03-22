@@ -273,9 +273,9 @@ en:
         by_title: 'By title'
 ```
 
-### Output customisation
+### Output customization
 
-The presenter supports a number of optional arguments that allow a great amount of flexibility regarding customisation of CSS classes, labels and HTML attributes. Please refer to the tests for the details.
+The presenter supports a number of optional arguments that allow a great amount of flexibility regarding customization of CSS classes, labels and HTML attributes. Please refer to the tests for the details.
 
 ### Overwriting the starting scope
 
@@ -333,11 +333,11 @@ end
 Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate HTML tables from a set of records:
 
 ```erb
-<% tasks = present_collection(@tasks) %>
-
 <%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
   <%= row.column :title %>
-  <%= row.column :completed %>
+  <%= row.column :completed do %>
+    <%= record.completed ? '✓' : '✗' %>
+  <% end %>
   <%= row.column :due_date %>
 <% end %>
 ```
@@ -346,28 +346,16 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
 <table>
   <thead>
     <tr>
-      <th role='title'>
-        Title
-      </th>
-      <th role='completed'>
-        Completed
-      </th>
-      <th role='due_date'>
-        Due date
-      </th>
+      <th role='title'>Title</th>
+      <th role='completed'>Completed</th>
+      <th role='due_date'>Due date</th>
     </tr>
   <thead>
   <tbody>
     <tr id='task_1' class='is-even'>
-      <td role='title'>
-        Call mum ASAP
-      </td>
-      <td role='completed'>
-        false
-      </td>
-      <td role='due_date'>
-        2013-02-04
-      </td>
+      <td role='title'>Call mum ASAP</td>
+      <td role='completed'>✓</td>
+      <td role='due_date'>2013-02-04</td>
     </tr>
     <tr id='task_2' class='is-odd'>
       <!-- ... -->
@@ -376,22 +364,200 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
 </table>
 ```
 
-### Actions
+### Record actions
 
-WIP
+Often table rows needs to offer some kind of action associated with the record. The presenter implements the following DSL to support that:
 
-### Customising the output
+```erb
+<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+  <%# ... %>
+  <%= row.actions do %>
+    <%= row.action :show, admin_task_path(record) %>
+    <%= row.action :edit, edit_admin_task_path(record) %>
+    <%= row.action :destroy, admin_task_path(record), method: :delete %>
+  <% end %>
+<% end %>
+```
 
-WIP
+```html
+<table>
+  <thead>
+    <tr>
+      <!-- ... -->
+      <th role='actions'>Actions</th>
+    </tr>
+  <thead>
+  <tbody>
+    <tr id='task_1' class='is-even'>
+      <!-- ... -->
+      <td role='actions'>
+        <a href='/admin/tasks/1' role='show'>Show</a>
+        <a href='/admin/tasks/1/edit' role='edit'>Edit</a>
+        <a href='/admin/tasks/1' role='destroy' data-method='delete'>Destroy</a>
+      </td>
+    </tr>
+  <tbody>
+</table>
+```
 
-### Subclassing
+### Sortable columns
+
+Once a query object is passed to the presenter, columns can be associated to specific sorting scopes of the query object using the `sorting` option:
+
+```erb
+<% query = present(@query) %>
+
+<%= Admino::Table::Presenter.new(@tasks, Task, query, self).to_html do |row, record| %>
+  <%= row.column :title, sorting: :by_title %>
+  <%= row.column :due_date, sorting: :by_due_date %>
+<% end %>
+```
+
+This generates links that allow the visitor to sort the result set in ascending and descending direction:
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th role='title'>
+        <a href="/admin/tasks?sorting=by_title&sort_order=desc" class='is-asc'>Title</a>
+      </th>
+      <th role='due_date'>
+        <a href="/admin/tasks?sorting=by_due_date&sort_order=asc" class='is-asc'>Due date</a>
+      </th>
+    </tr>
+  <thead>
+  <!-- ... -->
+</table>
+```
+
+### Customizing the output
+
+The `#column` and `#action` methods are very flexible, allowing youto change almost every aspect of the generated table cells:
+
+```erb
+<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html(class: 'table-class') do |row, record| %>
+  <%= row.column :title, 'Custom title',
+                 class: 'custom-class', role: 'custom-role', data: { custom: 'true' },
+                 sorting: :by_title, sorting_html_options: { desc_class: 'down' }
+  %>
+  <%= row.action :show, admin_task_path(record), 'Custom label',
+                 class: 'custom-class', role: 'custom-role', data: { custom: 'true' }
+  %>
+<% end %>
+```
+
+If you need more power, you can also decide to subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appeareance.
+Table cells are generated through two collaborator classes: `Admino::Table::HeadRow` and `Admino::Table::ResourceRow`. You can easily replace them with a subclass if you want. To grasp the idea here's an example:
 
 ```ruby
-class TableCollectionPresenter < Admino::Table::Presenter
+class CustomTablePresenter < Admino::Table::Presenter
+  private
+
+  def table_html_options
+    { class: 'table-class' }
+  end
+
+  def tbody_tr_html_options(resource_index)
+    { class: 'tr-class' }
+  end
+
+  def zebra_css_classes
+    %w(one two three)
+  end
+
+  def resource_row(resource, view_context)
+    ResourceRow.new(resource, view_context)
+  end
+
+  def head_row(collection_klass, query, view_context)
+    HeadRow.new(collection_klass, query, view_context)
+  end
+
+  class ResourceRow < Admino::Table::ResourceRow
+    private
+
+    def action_html_options(action_name)
+      { class: 'action-class' }
+    end
+
+    def show_action_html_options
+      { class: 'show-action-class' }
+    end
+
+    def column_html_options(attribute_name)
+      { class: 'column-class' }
+    end
+  end
+
+  class HeadRow < Admino::Table::ResourceRow
+    def column_html_options(attribute_name)
+      { class: 'column-class' }
+    end
+  end
+end
+```
+
+Please refer to the tests for all the details.
+
+### Inherited resources
+
+If the action URLs can be programmatically generated, it becomes even easier to specify the table actions:
+
+```erb
+<%= CustomTablePresenter.new(@tasks, Task, self).to_html do |row, record| %>
+  <%# ... %>
+  <%= row.actions :show, :edit, :destroy %>
+<% end %>
+```
+For instance, using [Inherited Resources](https://github.com/josevalim/inherited_resources) to generate controller actions, you can use its [helper methods](https://github.com/josevalim/inherited_resources#url-helpers) to build a custom subclass of `Admino::Table::Presenter`:
+
+```ruby
+class CustomTablePresenter < Admino::Table::Presenter
+  private
+
+  def resource_row(resource, view_context)
+    ResourceRow.new(resource, view_context)
+  end
+
+  class ResourceRow < Admino::Table::ResourceRow
+    def show_action_url
+      h.resource_url(resource)
+    end
+
+    def edit_action_url
+      h.edit_resource_url(resource)
+    end
+
+    def destroy_action_url
+      h.resource_url(resource)
+    end
+
+    def destroy_action_html_options
+      { method: :delete }
+    end
+  end
 end
 ```
 
 ### I18n
 
-WIP
+Column titles are generated using the model [`#human_attribute_name`](http://apidock.com/rails/ActiveRecord/Base/human_attribute_name/class) method, so if you already translated the model attribute names, you're good to go. To translate actions, please refer to the following YAML file:
+
+```yaml
+en:
+  activerecord:
+    attributes:
+      task:
+        title: 'Title'
+        due_date: 'Due date'
+        completed: 'Completed?'
+  table:
+    actions:
+      task:
+        title: 'Actions'
+        show: 'Details'
+        edit: 'Edit task'
+        destroy: 'Delete'
+```
 

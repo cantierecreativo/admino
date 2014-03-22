@@ -20,7 +20,10 @@ module Admino
         label = I18n.t(
           :"#{resource_klass.model_name.i18n_key}.title",
           scope: 'table.actions',
-          default: [ :title, 'Actions' ]
+          default: [
+            :title,
+            'Actions'
+          ]
         )
 
         @columns << h.content_tag(:th, label.to_s, default_options)
@@ -59,9 +62,7 @@ module Admino
       private
 
       def column_html_options(attribute_name)
-        if attribute_name
-          { role: attribute_name.to_s.gsub(/_/, '-') }
-        end
+        { role: attribute_name.to_s.gsub(/_/, '-') }
       end
     end
   end

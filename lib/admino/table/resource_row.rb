@@ -119,15 +119,11 @@ module Admino
       private
 
       def action_html_options(action_name)
-        if action_name
-          { role: action_name.to_s.gsub(/_/, '-') }
-        end
+        { role: action_name.to_s.gsub(/_/, '-') }
       end
 
       def column_html_options(attribute_name)
-        if attribute_name
-          { role: attribute_name.to_s.gsub(/_/, '-') }
-        end
+        { role: attribute_name.to_s.gsub(/_/, '-') }
       end
     end
   end
