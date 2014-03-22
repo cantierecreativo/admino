@@ -371,12 +371,12 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
     </tr>
   <thead>
   <tbody>
-    <tr id='task_1' class='is-even'>
+    <tr class='is-even'>
       <td role='title'>Call mum ASAP</td>
       <td role='completed'>✓</td>
       <td role='due-date'>2013-02-04</td>
     </tr>
-    <tr id='task_2' class='is-odd'>
+    <tr class='is-odd'>
       <!-- ... -->
     </tr>
   <tbody>
@@ -407,7 +407,7 @@ Often tables need to offer some kind of action associated with the records. The 
     </tr>
   <thead>
   <tbody>
-    <tr id='task_1' class='is-even'>
+    <tr class='is-even'>
       <!-- ... -->
       <td role='actions'>
         <a href='/admin/tasks/1' role='show'>Show</a>
@@ -568,6 +568,46 @@ This will enable you to generate row actions even faster, simply declaring them 
   <%# ... %>
   <%= row.actions :show, :edit, :destroy %>
 <% end %>
+```
+
+### Showcase::Traits::Record
+
+As funny it may sound, it is strongly suggested to pass to the table presenter an array of records which in turn have been already presented. This enables you to use as columns not only the raw attributes of the model, but all the methods defined in the presenter.
+
+Furthermore, if the record presenter includes the `Showcase::Traits::Record` trait, each row of the table will automatically have an unique id attribute thanks to the [`#dom_id` method](https://github.com/stefanoverna/showcase#dom_id).
+
+```ruby
+class TaskPresenter < Showcase::Presenter
+  include Showcase::Traits::Record
+
+  def truncated_title
+    h.truncate(title, length: 50)
+  end
+end
+```
+
+```erb
+<% tasks = present_collection(@tasks)
+
+<%= Admino::Table::Presenter.new(tasks, Task, self).to_html do |row, record| %>
+  <%= row.column :truncated_title, 'Title' %>
+<% end %>
+```
+
+```html
+<table>
+  <thead>
+    <th role='truncated-title'>Title</th>
+  <thead>
+  <tbody>
+    <tr id='task_1' class='is-even'>
+      <td role='truncated-title'>Call mum ASAP</td>
+    </tr>
+    <tr id='task_2' class='is-odd'>
+      <td role='truncated-title'>Buy some milk</td>
+    </tr>
+  <tbody>
+</table>
 ```
 
 ### I18n

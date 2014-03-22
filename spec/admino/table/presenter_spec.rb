@@ -37,14 +37,21 @@ module Admino
           expect(result).to have_tag('table tbody tr', count: 2)
         end
 
-        it 'adds a record idenfier to each collection row' do
-          expect(result).to have_tag('tbody tr#post_1')
-          expect(result).to have_tag('tbody tr#post_2')
+        context 'if the record responds to #dom_id' do
+          before do
+            first_post.stub(:dom_id).and_return('post_1')
+            second_post.stub(:dom_id).and_return('post_2')
+          end
+
+          it 'adds a record identifier to each collection row' do
+            expect(result).to have_tag('tbody tr#post_1:first-child')
+            expect(result).to have_tag('tbody tr#post_2:last-child')
+          end
         end
 
         it 'adds zebra classes to each collection row' do
-          expect(result).to have_tag('tbody #post_1.is-even')
-          expect(result).to have_tag('tbody #post_2.is-odd')
+          expect(result).to have_tag('tbody tr.is-even:first-child')
+          expect(result).to have_tag('tbody tr.is-odd:last-child')
         end
 
         it 'delegates thead columns creation to .to_html HeadRow' do
@@ -126,11 +133,11 @@ module Admino
           end
 
           it "allows customizing the tbody_tr html attributes" do
-            expect(presenter.to_html).to have_tag(:tr, with: { id: 'post_1', class: 'index-0' })
+            expect(presenter.to_html).to have_tag("tbody tr.index-0:first-child")
           end
 
           it 'allows customizing zebra classes' do
-            expect(presenter.to_html).to have_tag(:tr, with: { id: 'post_1', class: 'one' })
+            expect(presenter.to_html).to have_tag("tbody tr.one:first-child")
           end
         end
 

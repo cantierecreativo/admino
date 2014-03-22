@@ -64,10 +64,6 @@ class Post < Struct.new(:key, :dom_id)
   def to_key
     [key]
   end
-
-  def dom_id
-    "post_#{key}"
-  end
 end
 
 require 'action_view'
