@@ -28,12 +28,16 @@ module Admino
       end
 
       def scope_params(scope)
-        params = ActiveSupport::HashWithIndifferentAccess.new(h.request.query_parameters)
+        params = ActiveSupport::HashWithIndifferentAccess.new(
+          h.request.query_parameters
+        )
+
+        params[:query] ||= {}
 
         if is_scope_active?(scope)
-          params.delete(param_name)
+          params[:query].delete(param_name)
         else
-          params.merge!(param_name => scope.to_s)
+          params[:query].merge!(param_name => scope.to_s)
         end
 
         params

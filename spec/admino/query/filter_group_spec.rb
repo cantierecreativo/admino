@@ -17,7 +17,7 @@ module Admino
         end
 
         context 'with an invalid value' do
-          let(:params) { { 'foo' => 'qux' } }
+          let(:params) { { 'query' => { 'foo' => 'qux' } } }
 
           it 'returns nil' do
             expect(filter_group.active_scope).to be_nil
@@ -25,7 +25,7 @@ module Admino
         end
 
         context 'with a valid value' do
-          let(:params) { { 'foo' => 'bar' } }
+          let(:params) { { 'query' => { 'foo' => 'bar' } } }
 
           it 'returns the scope name' do
             expect(filter_group.active_scope).to eq :bar
@@ -38,7 +38,7 @@ module Admino
         let(:scope) { ScopeMock.new('original') }
 
         context 'if the search_field has a value' do
-          let(:params) { { 'foo' => 'bar' } }
+          let(:params) { { 'query' => { 'foo' => 'bar' } } }
 
           it 'returns the original scope chained with the filter_group scope' do
             expect(result.chain).to eq [:bar, []]
@@ -53,7 +53,7 @@ module Admino
       end
 
       describe '#is_scope_active?' do
-        let(:params) { { 'foo' => 'bar' } }
+        let(:params) { { 'query' => { 'foo' => 'bar' } } }
 
         it 'returns true if the provided scope is the one currently active' do
           expect(filter_group.is_scope_active?(:bar)).to be_true

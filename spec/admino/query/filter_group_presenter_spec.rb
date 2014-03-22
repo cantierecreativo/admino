@@ -16,7 +16,7 @@ module Admino
       let(:request_object) do
         double(
           'ActionDispatch::Request',
-          query_parameters: { 'filter_group' => 'bar' },
+          query_parameters: { 'query' => { 'field' => 'value', 'filter_group' => 'bar' } },
           path: '/'
         )
       end
@@ -86,6 +86,8 @@ module Admino
       end
 
       describe '#scope_params' do
+        let(:scope_active) { false }
+
         before do
           filter_group.stub(:is_scope_active?).with(:foo).and_return(scope_active)
         end
@@ -94,7 +96,7 @@ module Admino
           let(:scope_active) { true }
 
           it 'deletes the filter_group param' do
-            expect(presenter.scope_params(:foo)).not_to have_key 'filter_group'
+            expect(presenter.scope_params(:foo)[:query]).not_to have_key 'filter_group'
           end
         end
 
@@ -102,8 +104,12 @@ module Admino
           let(:scope_active) { false }
 
           it 'is set as filter group value' do
-            expect(presenter.scope_params(:foo)[:filter_group]).to eq 'foo'
+            expect(presenter.scope_params(:foo)[:query][:filter_group]).to eq 'foo'
           end
+        end
+
+        it 'preserves the other params' do
+          expect(presenter.scope_params(:foo)[:query][:field]).to eq 'value'
         end
       end
 

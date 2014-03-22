@@ -1,3 +1,7 @@
+# v0.0.6
+
+* Moved the filter group params inside of the `:query` hash
+
 # v0.0.5
 
 * Rename Field into SearchField

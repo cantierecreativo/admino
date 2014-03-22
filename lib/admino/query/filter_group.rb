@@ -23,8 +23,8 @@ module Admino
       end
 
       def active_scope
-        if param_value && scopes.include?(param_value.to_sym)
-          param_value.to_sym
+        if value && scopes.include?(value.to_sym)
+          value.to_sym
         else
           nil
         end
@@ -34,8 +34,8 @@ module Admino
         active_scope == scope
       end
 
-      def param_value
-        params.fetch(param_name, nil)
+      def value
+        params.fetch(:query, {}).fetch(param_name, nil)
       end
 
       def param_name

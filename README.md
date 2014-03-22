@@ -86,8 +86,7 @@ class TasksQuery < Admino::Query::Base
   search_field :title_matches
 end
 ```
-The `#scope` method will check the presence of the `params[:query][:title_matches]` key. If it finds it, it will augment the query with a
-named scope called `:title_matches`, expected to be found within the `Task` model, that needs to accept an argument.
+The `#scope` method will check the presence of the `params[:query][:title_matches]` key. If it finds it, it will augment the query with a named scope called `:title_matches`, expected to be found within the `Task` model. The scope needs to accept an argument.
 
 ```ruby
 class Task < ActiveRecord::Base
@@ -112,7 +111,7 @@ class TasksQuery < Admino::Query::Base
 end
 ```
 
-Just like a search field, with a declared filter group the `#scope` method will check the presence of a `params[:query][:status]` key. If it finds it (and its value corresponds to one of the declared scopes) it will augment the query the scope itself:
+Just like a search field, with a declared filter group the `#scope` method will check the presence of a `params[:query][:status]` key. If it finds it (and its value corresponds to one of the declared scopes) it will augment the query with the scope itself:
 
 ```ruby
 class Task < ActiveRecord::Base

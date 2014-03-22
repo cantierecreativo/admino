@@ -15,7 +15,7 @@ module Admino
       let(:request_object) do
         double(
           'ActionDispatch::Request',
-          query_parameters: { 'sorting' => 'by_date' },
+          query_parameters: { 'sorting' => 'by_date', 'other' => 'value' },
           path: '/'
         )
       end
@@ -103,8 +103,12 @@ module Admino
           sorting.stub(:is_scope_active?).with(:by_title).and_return(false)
         end
 
+        it 'preserves other params' do
+          expect(subject[:other]).to eq 'value'
+        end
+
         it 'sets the sorting param as the scope' do
-          subject[:sorting] == 'by_title'
+          expect(subject[:sorting]).to eq 'by_title'
         end
 
         context 'scope is active' do
@@ -118,7 +122,7 @@ module Admino
             end
 
             it 'sets the sorting order to descending' do
-              subject[:sort_order] == 'desc'
+              expect(subject[:sort_order]).to eq 'desc'
             end
           end
 
@@ -128,7 +132,7 @@ module Admino
             end
 
             it 'sets the sorting order to ascending' do
-              subject[:sort_order] == 'asc'
+              expect(subject[:sort_order]).to eq 'asc'
             end
           end
         end
@@ -142,7 +146,7 @@ module Admino
             end
 
             it 'sets the sorting order to ascending' do
-              subject[:sort_order] == 'asc'
+              expect(subject[:sort_order]).to eq 'asc'
             end
           end
 
@@ -152,7 +156,7 @@ module Admino
             end
 
             it 'sets the sorting order to descending' do
-              subject[:sort_order] == 'desc'
+              expect(subject[:sort_order]).to eq 'desc'
             end
           end
         end
@@ -163,7 +167,7 @@ module Admino
           end
 
           it 'sets the sorting order to ascending' do
-            subject[:sort_order] == 'asc'
+            expect(subject[:sort_order]).to eq 'asc'
           end
         end
       end
