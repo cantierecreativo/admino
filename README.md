@@ -249,6 +249,81 @@ The great thing is that:
 
 The presenter also offers a `#simple_form` method to make it work with [Simple Form](https://github.com/plataformatec/simple_form) out of the box.
 
+### Output customization
+
+The `#scope_link` methods are very flexible, allowing you to change almost every aspect of the generated links:
+
+```erb
+<% status_filter = query.filter_group_by_name(:status) %>
+
+<%= status_filter.scope_link :completed,
+                             'Custom title',
+                             active_class: 'active',
+                             class: 'custom-class'
+%>
+```
+
+Please refer to the tests for the details.
+
+### Overwriting the starting scope
+
+Suppose you have to filter the tasks based on the `@current_user` work group. You can easily provide an alternative starting scope from the controller passing it as an argument to the `#scope` method:
+
+```ruby
+def index
+  @query = TasksQuery.new(params)
+  @project_tasks = @query.scope(@current_user.team.tasks)
+end
+```
+
+### Coertions
+
+Suppose the presence of a model scope that requires a non-textual argument (ie. a date):
+
+```ruby
+class Task < ActiveRecord::Base
+  scope :due_date_from, ->(date) { where('due_date >= ?', date) }
+end
+```
+
+Admino can perform some automatic coertions to the textual parameter it gets, and pass the coerced value to the scope:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  search_field :due_date_from, coerce: :to_date
+end
+
+query = TaskQuery.new(query: { due_date_from: '2014-03-01' })
+query.search_field_by_name(:due_date_from).value # => #<Date Sat, 01 Mar 2014>
+```
+
+If a specific coercion cannot be performed with the provided input, the scope won't be chained. The following coertions are available:
+
+* `:to_boolean`
+* `:to_constant`
+* `:to_date`
+* `:to_datetime`
+* `:to_decimal`
+* `:to_float`
+* `:to_integer`
+* `:to_symbol`
+* `:to_time`
+
+Please see the [`Coercible::Coercer::String`](https://github.com/solnic/coercible/blob/master/lib/coercible/coercer/string.rb) class for details.
+
+### Default sorting
+
+If you need to setup a default sorting, you can pass some optional arguments to the `sorting` declaration:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  sorting :by_due_date, :by_title,
+          default_scope: :by_due_date,
+          default_direction: :desc
+end
+```
+
 ### I18n
 
 To localize the search form labels, as well as the group filter names and scope links, please refer to the following YAML file:
@@ -270,61 +345,6 @@ en:
       task_query:
         by_due_date: 'By due date'
         by_title: 'By title'
-```
-
-### Output customization
-
-The presenter supports a number of optional arguments that allow a great amount of flexibility regarding customization of CSS classes, labels and HTML attributes. Please refer to the tests for the details.
-
-### Overwriting the starting scope
-
-Suppose you have to filter the tasks based on the `@current_user` work group. You can easily provide an alternative starting scope from the controller passing it as an argument to the `#scope` method:
-
-```ruby
-def index
-  @query = TasksQuery.new(params)
-  @project_tasks = @query.scope(@current_user.team.tasks)
-end
-```
-
-### Coertions
-
-Admino can perform automatic coertions from a param string input to the type needed by the model named scope:
-
-```ruby
-class TasksQuery < Admino::Query::Base
-  # ...
-  field :due_date_from, coerce: :to_date
-  field :due_date_to, coerce: :to_date
-end
-```
-The following coertions are available:
-
-* `:to_boolean`
-* `:to_constant`
-* `:to_date`
-* `:to_datetime`
-* `:to_decimal`
-* `:to_float`
-* `:to_integer`
-* `:to_symbol`
-* `:to_time`
-
-If a specific coercion cannot be performed with the provided input, the scope won't be chained.
-
-Please see the [`Coercible::Coercer::String`](https://github.com/solnic/coercible/blob/master/lib/coercible/coercer/string.rb) class for details.
-
-### Default sorting
-
-If you need to setup a default sorting, you can pass some optional arguments to a `scoping` declaration:
-
-```ruby
-class TasksQuery < Admino::Query::Base
-  # ...
-  sorting :by_due_date, :by_title,
-          default_scope: :by_due_date,
-          default_direction: :desc
-end
 ```
 
 ## Admino::Table::Presenter
@@ -365,7 +385,7 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
 
 ### Record actions
 
-Often table rows needs to offer some kind of action associated with the record. The presenter implements the following DSL to support that:
+Often tables need to offer some kind of action associated with the records. The presenter implements the following DSL to support that:
 
 ```erb
 <%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
@@ -401,7 +421,15 @@ Often table rows needs to offer some kind of action associated with the record. 
 
 ### Sortable columns
 
-Once a query object is passed to the presenter, columns can be associated to specific sorting scopes of the query object using the `sorting` option:
+If you want to make the table headers sortable, then please create an Admino query object class to define the available sorting scopes.
+
+```ruby
+class TaskQuery < Admino::Query::Base
+  sorting :by_title, :by_due_date
+end
+```
+
+You can then pass the query object as a parameter to the table presenter initializer, and associate table columns to specific sorting scopes of the query object using the `sorting` directive:
 
 ```erb
 <% query = present(@query) %>
@@ -419,10 +447,10 @@ This generates links that allow the visitor to sort the result set in ascending 
   <thead>
     <tr>
       <th role='title'>
-        <a href="/admin/tasks?sorting=by_title&sort_order=desc" class='is-asc'>Title</a>
+        <a href='/admin/tasks?sorting=by_title&sort_order=desc' class='is-asc'>Title</a>
       </th>
       <th role='due-date'>
-        <a href="/admin/tasks?sorting=by_due_date&sort_order=asc" class='is-asc'>Due date</a>
+        <a href='/admin/tasks?sorting=by_due_date&sort_order=asc'>Due date</a>
       </th>
     </tr>
   <thead>
@@ -432,7 +460,7 @@ This generates links that allow the visitor to sort the result set in ascending 
 
 ### Customizing the output
 
-The `#column` and `#action` methods are very flexible, allowing youto change almost every aspect of the generated table cells:
+The `#column` and `#action` methods are very flexible, allowing you to change almost every aspect of the generated table cells:
 
 ```erb
 <%= Admino::Table::Presenter.new(@tasks, Task, self).to_html(class: 'table-class') do |row, record| %>
@@ -446,7 +474,7 @@ The `#column` and `#action` methods are very flexible, allowing youto change alm
 <% end %>
 ```
 
-If you need more power, you can also decide to subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appeareance.
+If you need more power, you can also subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appeareance.
 Table cells are generated through two collaborator classes: `Admino::Table::HeadRow` and `Admino::Table::ResourceRow`. You can easily replace them with a subclass if you want. To grasp the idea here's an example:
 
 ```ruby
@@ -499,17 +527,11 @@ end
 
 Please refer to the tests for all the details.
 
-### Inherited resources
+### Inherited resources (and similar)
 
-If the action URLs can be programmatically generated, it becomes even easier to specify the table actions:
+If your controller actions are generated through [Inherited Resources](https://github.com/josevalim/inherited_resources), then you can always get the URL pointing to the show action with the `resource_path` helper method. Similar helpers [are available for the other REST actions too](https://github.com/josevalim/inherited_resources#url-helpers) (new, edit, destroy).
 
-```erb
-<%= CustomTablePresenter.new(@tasks, Task, self).to_html do |row, record| %>
-  <%# ... %>
-  <%= row.actions :show, :edit, :destroy %>
-<% end %>
-```
-For instance, using [Inherited Resources](https://github.com/josevalim/inherited_resources) to generate controller actions, you can use its [helper methods](https://github.com/josevalim/inherited_resources#url-helpers) to build a custom subclass of `Admino::Table::Presenter`:
+More in general, if you are able to programmatically generate/obtain the URLs of your row actions, you can subclass `Admino::Table::Presenter` and declare them:
 
 ```ruby
 class CustomTablePresenter < Admino::Table::Presenter
@@ -537,6 +559,15 @@ class CustomTablePresenter < Admino::Table::Presenter
     end
   end
 end
+```
+
+This will enable you to generate row actions even faster, simply declaring them as arguments to the `#actions` DSL method:
+
+```erb
+<%= CustomTablePresenter.new(@tasks, Task, self).to_html do |row, record| %>
+  <%# ... %>
+  <%= row.actions :show, :edit, :destroy %>
+<% end %>
 ```
 
 ### I18n
