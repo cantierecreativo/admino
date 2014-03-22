@@ -19,7 +19,7 @@ So yes, if you're starting a small, short-lived project, go ahead with them, it 
 
 ### A modular approach to the problem
 
-The great thing is that you don't need to write a lot of code to get a more maintainable and modular administrative area. 
+The great thing is that you don't need to write a lot of code to get a more maintainable and modular administrative area.
 Gems like [Inherited Resources](https://github.com/josevalim/inherited_resources) and [Simple Form](https://github.com/plataformatec/simple_form), combined with [Rails 3.1+ template-inheritance](http://railscasts.com/episodes/269-template-inheritance) already give you ~90% of the time-saving features and the same super-DRY, declarative code that administrative interfaces offer, but with a far more relaxed contract.
 
 If a particular controller or view needs something different from the standard CRUD/REST treatment, you can just avoid using those gems in that specific context, and fall back to standard Rails code. No workarounds, no facepalms. It seems easy, right? It is.
@@ -60,7 +60,7 @@ end
 
 ### Building the query itself
 
-You can specify how a `TaskQuery` must build a result set through a simple DSL. 
+You can specify how a `TaskQuery` must build a result set through a simple DSL.
 
 #### `starting_scope`
 
@@ -91,8 +91,8 @@ named scope called `:title_matches`, expected to be found within the `Task` mode
 
 ```ruby
 class Task < ActiveRecord::Base
-  scope :title_matches, ->(text) { 
-    where('title ILIKE ?', "%#{text}%") 
+  scope :title_matches, ->(text) {
+    where('title ILIKE ?', "%#{text}%")
   }
 end
 
@@ -178,7 +178,7 @@ query.filter_groups  # => [ #<Admino::Query::FilterGroup>, ... ]
 
 search_field = query.search_field_by_name(:title_matches)
 
-search_field.name      # => :title_matches 
+search_field.name      # => :title_matches
 search_field.present?  # => true
 search_field.value     # => 'ASAP'
 
@@ -322,13 +322,76 @@ If you need to setup a default sorting, you can pass some optional arguments to 
 ```ruby
 class TasksQuery < Admino::Query::Base
   # ...
-  sorting :by_due_date, :by_title, 
-          default_scope: :by_due_date, 
+  sorting :by_due_date, :by_title,
+          default_scope: :by_due_date,
           default_direction: :desc
 end
 ```
 
 ## Admino::Table::Presenter
+
+Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate HTML tables from a set of records:
+
+```erb
+<% tasks = present_collection(@tasks) %>
+
+<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+  <%= row.column :title %>
+  <%= row.column :completed %>
+  <%= row.column :due_date %>
+<% end %>
+```
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th role='title'>
+        Title
+      </th>
+      <th role='completed'>
+        Completed
+      </th>
+      <th role='due_date'>
+        Due date
+      </th>
+    </tr>
+  <thead>
+  <tbody>
+    <tr id='task_1' class='is-even'>
+      <td role='title'>
+        Call mum ASAP
+      </td>
+      <td role='completed'>
+        false
+      </td>
+      <td role='due_date'>
+        2013-02-04
+      </td>
+    </tr>
+    <tr id='task_2' class='is-odd'>
+      <!-- ... -->
+    </tr>
+  <tbody>
+</table>
+```
+
+### Actions
+
+WIP
+
+### Customising the output
+
+WIP
+
+### Subclassing
+
+```ruby
+class TableCollectionPresenter < Admino::Table::Presenter
+end
+```
+
+### I18n
 
 WIP
 

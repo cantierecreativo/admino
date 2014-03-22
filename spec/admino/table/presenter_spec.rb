@@ -11,20 +11,15 @@ module Admino
 
       let(:collection) { [ first_post, second_post ] }
       let(:first_post) { Post.new('1') }
-      let(:first_post_presenter) { double('PresentedPost', dom_id: 'post_1') }
       let(:second_post) { Post.new('2') }
-      let(:second_post_presenter) { double('PresentedPost', dom_id: 'post_2') }
 
       let(:head_row) { double('HeadRow', to_html: '<td id="thead_td"></td>'.html_safe) }
       let(:resource_row) { double('ResourceRow', to_html: '<td id="tbody_td"></td>'.html_safe) }
 
       before do
-        PostPresenter.stub(:new).with(first_post, view).and_return(first_post_presenter)
-        PostPresenter.stub(:new).with(second_post, view).and_return(second_post_presenter)
-
         HeadRow.stub(:new).with(Post, query, view).and_return(head_row)
-        ResourceRow.stub(:new).with(first_post_presenter, view).and_return(resource_row)
-        ResourceRow.stub(:new).with(second_post_presenter, view).and_return(resource_row)
+        ResourceRow.stub(:new).with(first_post, view).and_return(resource_row)
+        ResourceRow.stub(:new).with(second_post, view).and_return(resource_row)
       end
 
       describe '#.to_html' do
@@ -78,8 +73,8 @@ module Admino
           end
 
           it 'calls it once for each collection member passing the ResourceRow instance and the member itself' do
-            expect(block_call_args[1]).to eq [resource_row, first_post_presenter]
-            expect(block_call_args[2]).to eq [resource_row, second_post_presenter]
+            expect(block_call_args[1]).to eq [resource_row, first_post]
+            expect(block_call_args[2]).to eq [resource_row, second_post]
           end
         end
 

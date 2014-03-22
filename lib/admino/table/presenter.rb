@@ -9,12 +9,12 @@ module Admino
       attr_reader :query
 
       def self.tag_helper(name, tag, options = {})
-        default_options_method = :"#{name}_html_options"
+        options_method = :"#{name}_html_options"
 
         define_method :"#{name}_tag" do |*args, &block|
           options = args.extract_options!
-          if respond_to?(default_options_method, true)
-            default_options = send(default_options_method, *args)
+          if respond_to?(options_method, true)
+            default_options = send(options_method, *args)
             html_options = Showcase::Helpers::HtmlOptions.new(default_options)
             html_options.merge_attrs!(options)
             options = html_options.to_h
@@ -50,11 +50,8 @@ module Admino
           end <<
           tbody_tag do
             collection.each_with_index.map do |resource, index|
-              tr_html_options = {
-                class: zebra_css_classes[index % zebra_css_classes.size],
-                id: resource.dom_id
-              }
-              tbody_tr_tag(resource, index, tr_html_options) do
+              html_options = base_tbody_tr_html_options(resource, index)
+              tbody_tr_tag(resource, index, html_options) do
                 row = resource_row(resource, view_context)
                 h.capture(row, resource, &block) if block_given?
                 row.to_html
@@ -67,7 +64,7 @@ module Admino
       private
 
       def collection
-        @collection ||= present_collection(object)
+        object
       end
 
       def head_row(collection_klass, query, view_context)
@@ -76,6 +73,18 @@ module Admino
 
       def resource_row(resource, view_context)
         ResourceRow.new(resource, view_context)
+      end
+
+      def base_tbody_tr_html_options(resource, index)
+        options = {
+          class: zebra_css_classes[index % zebra_css_classes.size]
+        }
+
+        if resource.respond_to?(:dom_id)
+          options[:id] = resource.dom_id
+        end
+
+        options
       end
 
       def zebra_css_classes

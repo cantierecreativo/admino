@@ -45,7 +45,7 @@ class TestQuery < Admino::Query::Base
   ending_scope { 'end' }
 end
 
-class Post < Struct.new(:key)
+class Post < Struct.new(:key, :dom_id)
   extend ActiveModel::Naming
   extend ActiveModel::Translation
 
@@ -64,12 +64,10 @@ class Post < Struct.new(:key)
   def to_key
     [key]
   end
-end
 
-require 'showcase/traits'
-
-class PostPresenter < Showcase::Presenter
-  include Showcase::Traits::Record
+  def dom_id
+    "post_#{key}"
+  end
 end
 
 require 'action_view'

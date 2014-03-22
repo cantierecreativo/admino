@@ -1,6 +1,7 @@
 # v0.0.5
 
 * Rename Field into SearchField
+* Admino::Table::Presenter no longer presents collection by default
 
 # v0.0.4
 
