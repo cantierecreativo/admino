@@ -43,25 +43,41 @@ module Admino
         table_tag(options) do
           thead_tag do
             thead_tr_tag do
-              row = head_row(collection_klass, query, view_context)
-              h.capture(row, nil, &block) if block_given?
-              row.to_html
+              th_tags(&block)
             end
           end <<
           tbody_tag do
-            collection.each_with_index.map do |resource, index|
-              html_options = base_tbody_tr_html_options(resource, index)
-              tbody_tr_tag(resource, index, html_options) do
-                row = resource_row(resource, view_context)
-                h.capture(row, resource, &block) if block_given?
-                row.to_html
-              end
-            end.join.html_safe
+            tbody_tr_tags(&block)
           end
         end
       end
 
       private
+
+      def tbody_tr_tags(&block)
+        collection.each_with_index.map do |resource, index|
+          html_options = base_tbody_tr_html_options(resource, index)
+          tbody_tr_tag(resource, index, html_options) do
+            td_tags(resource, &block)
+          end
+        end.join.html_safe
+      end
+
+      def th_tags(&block)
+        row = head_row(collection_klass, query, view_context)
+        if block_given?
+          h.capture(row, nil, &block)
+        end
+        row.to_html
+      end
+
+      def td_tags(resource, &block)
+        row = resource_row(resource, view_context)
+        if block_given?
+          h.capture(row, resource, &block)
+        end
+        row.to_html
+      end
 
       def collection
         object

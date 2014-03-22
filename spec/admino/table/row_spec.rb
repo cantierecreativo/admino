@@ -21,22 +21,22 @@ module Admino
 
         context 'with a symbol param' do
           let(:arguments) { [:title] }
-          it { should eq(attribute_name: :title, label: nil, html_options: {}) }
+          it { should eq [:title, nil, {}] }
         end
 
         context 'with a string param' do
           let(:arguments) { ['Title'] }
-          it { should eq(attribute_name: nil, label: 'Title', html_options: {}) }
+          it { should eq [nil, 'Title', {}] }
         end
 
         context 'with a string and a symbol param' do
           let(:arguments) { [:title, 'Title'] }
-          it { should eq(attribute_name: :title, label: 'Title', html_options: {}) }
+          it { should eq [:title, 'Title', {}] }
         end
 
         context 'with options' do
           let(:arguments) { [{ foo: 'bar' }] }
-          it { should eq(attribute_name: nil, label: nil, html_options: { foo: 'bar' }) }
+          it { should eq [nil, nil, { foo: 'bar' }] }
         end
       end
 
@@ -47,22 +47,22 @@ module Admino
 
         context 'with a symbol param' do
           let(:arguments) { [:show] }
-          it { should eq(action_name: :show, url: nil, label: nil, html_options: {}) }
+          it { should eq [:show, nil, nil, {}] }
         end
 
         context 'with a one string param' do
           let(:arguments) { ['/'] }
-          it { should eq(action_name: nil, url: '/', label: nil, html_options: {}) }
+          it { should eq [nil, '/', nil, {}] }
         end
 
         context 'with a two string params' do
           let(:arguments) { ['/', 'Details'] }
-          it { should eq(action_name: nil, url: '/', label: 'Details', html_options: {}) }
+          it { should eq [nil, '/', 'Details', {}] }
         end
 
         context 'with options' do
           let(:arguments) { [{ foo: 'bar' }] }
-          it { should eq(action_name: nil, url: nil, label: nil, html_options: { foo: 'bar' }) }
+          it { should eq [nil, nil, nil, { foo: 'bar' }] }
         end
       end
     end

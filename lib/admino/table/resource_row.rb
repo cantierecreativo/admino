@@ -15,11 +15,12 @@ module Admino
       end
 
       def column(*args, &block)
-        params = parse_column_args(args)
+        attribute_name, label, html_options = parse_column_args(args)
 
-        attribute_name = params[:attribute_name]
-        label = params[:label]
-        options = params[:html_options]
+        html_options = complete_column_html_options(
+          attribute_name,
+          html_options
+        )
 
         if block_given?
           content = h.capture(resource, &block)
@@ -29,11 +30,7 @@ module Admino
           raise ArgumentError, 'attribute name or block required'
         end
 
-        default_options = column_html_options(attribute_name)
-        html_options = Showcase::Helpers::HtmlOptions.new(default_options)
-        html_options.merge_attrs!(options)
-
-        @columns << h.content_tag(:td, content, html_options.to_h)
+        @columns << h.content_tag(:td, content, html_options)
       end
 
       def actions(*actions, &block)
@@ -47,60 +44,20 @@ module Admino
       end
 
       def action(*args, &block)
-        params = parse_action_args(args)
-
-        action_name = params[:action_name]
-        label = params[:label]
-        url = params[:url]
-        options = params[:html_options]
-
         if block_given?
           @actions << h.capture(resource, &block)
-          return
-        end
+        else
+          action_name, url, label, html_options = parse_action_args(args)
 
-        if url.nil?
-          if action_name.nil?
-            raise ArgumentError, 'no URL provided, action name required'
-          end
-
-          action_url_method = "#{action_name}_action_url"
-
-          if !respond_to?(action_url_method, true)
-            raise ArgumentError,
-                  "no URL provided, ##{action_url_method} method required"
-          end
-
-          url = send(action_url_method)
-        end
-
-        base_options = if action_name
-                         action_html_options(action_name)
-                       end
-
-        html_options = Showcase::Helpers::HtmlOptions.new(base_options)
-
-        action_html_options_method = "#{action_name}_action_html_options"
-
-        if respond_to?(action_html_options_method, true)
-          action_html_options = send(action_html_options_method)
-          html_options.merge_attrs!(action_html_options)
-        end
-
-        html_options.merge_attrs!(options)
-
-        if label.nil? && action_name
-          label = I18n.t(
-            :"#{resource.class.model_name.i18n_key}.#{action_name}",
-            scope: 'table.actions',
-            default: [
-              :"#{action_name}",
-              action_name.to_s.titleize
-            ]
+          label ||= action_label(action_name)
+          url ||= action_url(action_name)
+          html_options = complete_action_html_options(
+            action_name,
+            html_options
           )
-        end
 
-        @actions << h.link_to(label, url, html_options.to_h)
+          @actions << h.link_to(label, url, html_options)
+        end
       end
 
       def to_html
@@ -117,6 +74,63 @@ module Admino
       end
 
       private
+
+      def action_url(action_name)
+        if action_name.nil?
+          raise ArgumentError,
+                'no URL provided, action name required'
+        end
+
+        action_url_method = "#{action_name}_action_url"
+
+        if !respond_to?(action_url_method, true)
+          raise ArgumentError,
+                "no URL provided, ##{action_url_method} method required"
+        end
+
+        url = send(action_url_method)
+      end
+
+      def complete_action_html_options(action_name, final_html_options)
+        if action_name
+          default_options = column_html_options(action_name)
+          html_options = Showcase::Helpers::HtmlOptions.new(default_options)
+
+          action_html_options_method = "#{action_name}_action_html_options"
+          if respond_to?(action_html_options_method, true)
+            html_options.merge_attrs!(send(action_html_options_method))
+          end
+
+          html_options.merge_attrs!(final_html_options)
+          html_options.to_h
+        else
+          final_html_options
+        end
+      end
+
+      def complete_column_html_options(attribute_name, final_html_options)
+        if attribute_name
+          default_options = column_html_options(attribute_name)
+          html_options = Showcase::Helpers::HtmlOptions.new(default_options)
+          html_options.merge_attrs!(final_html_options)
+          html_options.to_h
+        else
+          final_html_options
+        end
+      end
+
+      def action_label(action_name)
+        return nil unless action_name
+
+        I18n.t(
+          :"#{resource.class.model_name.i18n_key}.#{action_name}",
+          scope: 'table.actions',
+          default: [
+            :"#{action_name}",
+            action_name.to_s.titleize
+          ]
+        )
+      end
 
       def action_html_options(action_name)
         { role: action_name.to_s.gsub(/_/, '-') }

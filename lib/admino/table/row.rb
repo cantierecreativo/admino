@@ -10,7 +10,7 @@ module Admino
       end
 
       def parse_column_args(args)
-        options = args.extract_options!
+        html_options = args.extract_options!
 
         attribute_name = if args.first.is_a?(Symbol)
                            args.shift
@@ -24,15 +24,11 @@ module Admino
                   nil
                 end
 
-        {
-          attribute_name: attribute_name,
-          label: label,
-          html_options: options
-        }
+        [attribute_name, label, html_options]
       end
 
       def parse_action_args(args)
-        options = args.extract_options!
+        html_options = args.extract_options!
 
         action_name = if args.first.is_a?(Symbol)
                         args.shift
@@ -48,12 +44,7 @@ module Admino
 
         label = args.shift
 
-        {
-          action_name: action_name,
-          url: url,
-          label: label,
-          html_options: options
-        }
+        [action_name, url, label, html_options]
       end
 
       def to_html

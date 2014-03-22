@@ -30,23 +30,18 @@ module Admino
       end
 
       def column(*args, &block)
-        params = parse_column_args(args)
+        attribute_name, label, html_options = parse_column_args(args)
 
-        attribute_name = params[:attribute_name]
-        label = params[:label]
-        options = params[:html_options]
+        label ||= column_label(attribute_name)
 
-        if label.nil? && attribute_name
-          label = resource_klass.human_attribute_name(attribute_name.to_s)
-        end
-
-        default_options = column_html_options(attribute_name)
-        html_options = Showcase::Helpers::HtmlOptions.new(default_options)
-        html_options.merge_attrs!(options)
-        html_options = html_options.to_h
+        html_options = complete_column_html_options(
+          attribute_name,
+          html_options
+        )
 
         sorting_scope = html_options.delete(:sorting)
         sorting_html_options = html_options.delete(:sorting_html_options) { {} }
+
         if sorting_scope
           raise ArgumentError, 'query object is required' unless query
           label = query.sorting.scope_link(sorting_scope, label, sorting_html_options)
@@ -60,6 +55,23 @@ module Admino
       end
 
       private
+
+      def column_label(attribute_name)
+        if attribute_name
+          resource_klass.human_attribute_name(attribute_name.to_s)
+        end
+      end
+
+      def complete_column_html_options(attribute_name, final_html_options)
+        if attribute_name.nil?
+          return final_html_options
+        end
+
+        default_options = column_html_options(attribute_name)
+        html_options = Showcase::Helpers::HtmlOptions.new(default_options)
+        html_options.merge_attrs!(final_html_options)
+        html_options = html_options.to_h
+      end
 
       def column_html_options(attribute_name)
         { role: attribute_name.to_s.gsub(/_/, '-') }
