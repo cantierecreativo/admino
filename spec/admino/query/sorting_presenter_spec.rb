@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'active_support/hash_with_indifferent_access'
 
 module Admino
   module Query
@@ -15,7 +16,9 @@ module Admino
       let(:request_object) do
         double(
           'ActionDispatch::Request',
-          query_parameters: { 'sorting' => 'by_date', 'other' => 'value' },
+          query_parameters: ActiveSupport::HashWithIndifferentAccess.new(
+            'sorting' => 'by_date', 'other' => 'value'
+          ),
           path: '/'
         )
       end
@@ -105,6 +108,11 @@ module Admino
 
         it 'preserves other params' do
           expect(subject[:other]).to eq 'value'
+        end
+
+        it 'keeps the request parameters intact' do
+          subject
+          expect(request_object.query_parameters[:sorting]).to eq 'by_date'
         end
 
         it 'sets the sorting param as the scope' do

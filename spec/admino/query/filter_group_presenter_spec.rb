@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'active_support/hash_with_indifferent_access'
 
 module Admino
   module Query
@@ -16,7 +17,9 @@ module Admino
       let(:request_object) do
         double(
           'ActionDispatch::Request',
-          query_parameters: { 'query' => { 'field' => 'value', 'filter_group' => 'bar' } },
+          query_parameters: ActiveSupport::HashWithIndifferentAccess.new(
+            'query' => { 'field' => 'value', 'filter_group' => 'bar' }
+          ),
           path: '/'
         )
       end
@@ -87,6 +90,7 @@ module Admino
 
       describe '#scope_params' do
         let(:scope_active) { false }
+        subject { presenter.scope_params(:foo) }
 
         before do
           filter_group.stub(:is_scope_active?).with(:foo).and_return(scope_active)
@@ -96,7 +100,12 @@ module Admino
           let(:scope_active) { true }
 
           it 'deletes the filter_group param' do
-            expect(presenter.scope_params(:foo)[:query]).not_to have_key 'filter_group'
+            expect(subject[:query]).not_to have_key 'filter_group'
+          end
+
+          it 'keeps the request parameters intact' do
+            presenter.scope_params(:foo)
+            expect(request_object.query_parameters[:query][:filter_group]).to be_present
           end
         end
 
@@ -104,12 +113,12 @@ module Admino
           let(:scope_active) { false }
 
           it 'is set as filter group value' do
-            expect(presenter.scope_params(:foo)[:query][:filter_group]).to eq 'foo'
+            expect(subject[:query][:filter_group]).to eq 'foo'
           end
         end
 
         it 'preserves the other params' do
-          expect(presenter.scope_params(:foo)[:query][:field]).to eq 'value'
+          expect(subject[:query][:field]).to eq 'value'
         end
       end
 

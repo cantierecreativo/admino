@@ -1,6 +1,7 @@
 require 'i18n'
 require 'showcase'
 require 'showcase/helpers/html_options'
+require 'active_support/core_ext/object/deep_dup'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
@@ -29,7 +30,7 @@ module Admino
 
       def scope_params(scope)
         params = ActiveSupport::HashWithIndifferentAccess.new(
-          h.request.query_parameters
+          h.request.query_parameters.deep_dup
         )
 
         params[:query] ||= {}

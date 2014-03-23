@@ -31,7 +31,7 @@ module Admino
       end
 
       def is_scope_active?(scope)
-        active_scope == scope
+        active_scope == scope.to_sym
       end
 
       def value

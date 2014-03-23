@@ -1,4 +1,5 @@
 require 'showcase'
+require 'active_support/core_ext/object/deep_dup'
 
 module Admino
   module Query
@@ -25,7 +26,9 @@ module Admino
       end
 
       def scope_params(scope)
-        params = ActiveSupport::HashWithIndifferentAccess.new(h.request.query_parameters)
+        params = ActiveSupport::HashWithIndifferentAccess.new(
+          h.request.query_parameters.deep_dup
+        )
 
         if is_scope_active?(scope)
           params.merge!(sorting: scope.to_s, sort_order: ascending? ? 'desc' : 'asc')

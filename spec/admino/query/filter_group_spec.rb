@@ -56,7 +56,7 @@ module Admino
         let(:params) { { 'query' => { 'foo' => 'bar' } } }
 
         it 'returns true if the provided scope is the one currently active' do
-          expect(filter_group.is_scope_active?(:bar)).to be_true
+          expect(filter_group.is_scope_active?('bar')).to be_true
         end
       end
     end
