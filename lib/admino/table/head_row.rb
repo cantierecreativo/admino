@@ -32,7 +32,11 @@ module Admino
       def column(*args, &block)
         attribute_name, label, html_options = parse_column_args(args)
 
-        label ||= column_label(attribute_name)
+        if label.nil?
+          label = column_label(attribute_name)
+        elsif label.is_a? Symbol
+          label = column_label(label)
+        end
 
         html_options = complete_column_html_options(
           attribute_name,

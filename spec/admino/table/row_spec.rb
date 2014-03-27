@@ -29,9 +29,14 @@ module Admino
           it { should eq [nil, 'Title', {}] }
         end
 
-        context 'with a string and a symbol param' do
+        context 'with a symbol and string param' do
           let(:arguments) { [:title, 'Title'] }
           it { should eq [:title, 'Title', {}] }
+        end
+
+        context 'with two symbol params' do
+          let(:arguments) { [:title, :foo] }
+          it { should eq [:title, :foo, {}] }
         end
 
         context 'with options' do

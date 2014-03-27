@@ -1,3 +1,11 @@
+# v0.0.8
+
+* Support a symbol column label. It will use human attribute name:
+
+  ```
+    = row.column :truncated_title, :title
+  ```
+
 # v0.0.7
 
 * `#scope_params` does not change request params

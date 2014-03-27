@@ -18,7 +18,7 @@ module Admino
                            nil
                          end
 
-        label = if args.first.is_a?(String)
+        label = if args.first.is_a?(String) || args.first.is_a?(Symbol)
                   args.shift
                 else
                   nil

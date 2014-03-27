@@ -17,7 +17,7 @@ module Admino
         subject { row.to_html }
 
         context 'text' do
-          context 'with label' do
+          context 'with string label' do
             before do
               row.column(:title, 'This is a title')
             end
@@ -27,26 +27,43 @@ module Admino
             end
           end
 
+          context 'with symbol label and I18n set up' do
+            before do
+              I18n.backend.store_translations(
+                :en,
+                activemodel: { attributes: { post: { foo: 'This is foo' } } }
+              )
+            end
+
+            before do
+              row.column(:title, :foo)
+            end
+
+            it 'generates a label with the human attribute name' do
+              should have_tag(:th, text: 'This is foo')
+            end
+          end
+
           context 'with no label' do
             before { row.column(:title) }
 
             it 'generates a label with the titleized attribute name' do
               should have_tag(:th, text: 'Title')
             end
-          end
 
-          context 'with I18n set up' do
-            before do
-              I18n.backend.store_translations(
-                :en,
-                activemodel: { attributes: { post: { title: 'Post title' } } }
-              )
-            end
+            context 'with I18n set up' do
+              before do
+                I18n.backend.store_translations(
+                  :en,
+                  activemodel: { attributes: { post: { title: 'Post title' } } }
+                )
+              end
 
-            before { row.column(:title) }
+              before { row.column(:title) }
 
-            it 'generates a label with the human attribute name' do
-              should have_tag(:th, text: 'Post title')
+              it 'generates a label with the human attribute name' do
+                should have_tag(:th, text: 'Post title')
+              end
             end
           end
         end
