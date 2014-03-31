@@ -1,3 +1,11 @@
+# v0.0.9
+
+* Allow `include_empty_scope` option in filter groups
+
+  ```
+    filter_by :status, [:foo, :bar], include_empty_scope: true
+  ```
+
 # v0.0.8
 
 * Support a symbol column label. It will use human attribute name:

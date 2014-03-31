@@ -14,6 +14,14 @@ module Admino
           it 'returns nil' do
             expect(filter_group.active_scope).to be_nil
           end
+
+          context 'if include_empty_scope is true' do
+            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+
+            it 'returns the :empty scope' do
+              expect(filter_group.active_scope).to eq :empty
+            end
+          end
         end
 
         context 'with an invalid value' do
@@ -21,6 +29,14 @@ module Admino
 
           it 'returns nil' do
             expect(filter_group.active_scope).to be_nil
+          end
+
+          context 'if include_empty_scope is true' do
+            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+
+            it 'returns nil' do
+              expect(filter_group.active_scope).to be_nil
+            end
           end
         end
 
@@ -49,6 +65,14 @@ module Admino
           it 'returns the original scope' do
             expect(result).to eq scope
           end
+
+          context 'if include_empty_scope is true' do
+            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+
+            it 'returns the original scope' do
+              expect(result).to eq scope
+            end
+          end
         end
       end
 
@@ -57,6 +81,19 @@ module Admino
 
         it 'returns true if the provided scope is the one currently active' do
           expect(filter_group.is_scope_active?('bar')).to be_true
+        end
+      end
+
+      describe '#scopes' do
+        subject { filter_group.scopes }
+
+        context 'if include_empty_scope is true' do
+          let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+          it { should eq [:empty, :bar] }
+        end
+
+        context 'else' do
+          it { should eq [:bar] }
         end
       end
     end

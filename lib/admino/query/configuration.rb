@@ -20,10 +20,19 @@ module Admino
       class FilterGroup
         attr_reader :name
         attr_reader :scopes
+        attr_reader :options
 
-        def initialize(name, scopes)
+        def initialize(name, scopes, options = {})
+          options.symbolize_keys!
+          options.assert_valid_keys(:include_empty_scope)
+
           @name = name.to_sym
           @scopes = scopes.map(&:to_sym)
+          @options = options
+        end
+
+        def include_empty_scope?
+          @options.fetch(:include_empty_scope) { false }
         end
       end
 
@@ -64,8 +73,8 @@ module Admino
         end
       end
 
-      def add_filter_group(name, scopes)
-        FilterGroup.new(name, scopes).tap do |filter_group|
+      def add_filter_group(name, scopes, options = {})
+        FilterGroup.new(name, scopes, options).tap do |filter_group|
           self.filter_groups << filter_group
         end
       end

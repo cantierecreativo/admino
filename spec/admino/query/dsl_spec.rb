@@ -16,6 +16,7 @@ module Admino
         filter_group = config.filter_groups.first
         expect(filter_group.name).to eq :bar
         expect(filter_group.scopes).to eq [:one, :two]
+        expect(filter_group.include_empty_scope?).to be_true
       end
 
       it 'allows #sortings declaration' do

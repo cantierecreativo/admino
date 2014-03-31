@@ -15,7 +15,7 @@ module Admino
       end
 
       def augment_scope(scope)
-        if active_scope
+        if active_scope && active_scope != :empty
           scope.send(active_scope)
         else
           scope
@@ -35,7 +35,8 @@ module Admino
       end
 
       def value
-        params.fetch(:query, {}).fetch(param_name, nil)
+        default_value = config.include_empty_scope? ? :empty : nil
+        params.fetch(:query, {}).fetch(param_name, default_value)
       end
 
       def param_name
@@ -43,7 +44,11 @@ module Admino
       end
 
       def scopes
-        config.scopes
+        @scopes ||= config.scopes.dup.tap do |scopes|
+          if config.include_empty_scope?
+            scopes.unshift :empty
+          end
+        end
       end
 
       def i18n_key

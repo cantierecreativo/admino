@@ -13,8 +13,8 @@ module Admino
         end
       end
 
-      def filter_by(name, scopes)
-        config.add_filter_group(name, scopes)
+      def filter_by(name, scopes, options = {})
+        config.add_filter_group(name, scopes, options)
       end
 
       def sorting(*args)
