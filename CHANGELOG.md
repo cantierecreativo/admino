@@ -1,3 +1,7 @@
+# v0.0.10
+
+* Fix bug in action generation of html attributes
+
 # v0.0.9
 
 * Allow `include_empty_scope` option in filter groups

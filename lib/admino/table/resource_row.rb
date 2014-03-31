@@ -93,7 +93,7 @@ module Admino
 
       def complete_action_html_options(action_name, final_html_options)
         if action_name
-          default_options = column_html_options(action_name)
+          default_options = action_html_options(action_name)
           html_options = Showcase::Helpers::HtmlOptions.new(default_options)
 
           action_html_options_method = "#{action_name}_action_html_options"

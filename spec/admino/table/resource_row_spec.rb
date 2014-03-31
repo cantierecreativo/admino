@@ -53,6 +53,21 @@ module Admino
           it 'uses it to build attributes' do
             should have_tag(:td, with: { class: 'title' })
           end
+
+          context 'with a class that implements a <action_name>_html_options' do
+            let(:row) { row_subclass.new(resource, view) }
+            let(:row_subclass) do
+              Class.new(ResourceRow) do
+                def column_html_options(action_name)
+                  { class: 'attribute' }
+                end
+              end
+            end
+
+            it 'renders them as attributes' do
+              should have_tag(:td, with: { class: 'attribute title' })
+            end
+          end
         end
       end
 
@@ -178,14 +193,18 @@ module Admino
             let(:row) { row_subclass.new(resource, view) }
             let(:row_subclass) do
               Class.new(ResourceRow) do
-                def show_action_html_options
+                def action_html_options(action_name)
                   { class: 'button' }
+                end
+
+                def show_action_html_options
+                  { class: 'show-button' }
                 end
               end
             end
 
             it 'renders them as attributes' do
-              should have_tag(:a, with: { class: 'foo button' })
+              should have_tag(:a, with: { class: 'foo show-button button' })
             end
           end
         end
