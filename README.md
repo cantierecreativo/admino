@@ -26,6 +26,10 @@ If a particular controller or view needs something different from the standard C
 
 So what about Admino? Well, it complements the above-mentioned gems, giving you the the missing ~10%: a fast way to generate administrative index views.
 
+## Demo
+
+To better illustrate how to create a 100%-custom, super-DRY administrative interface using Admino and the  aforementioned gems, we prepared a [repo with a sample Rails project](https://github.com/cantierecreativo/admino-example) you can take a look. The app is browsable at [http://admino-example.herokuapp.com](http://admino-example.herokuapp.com), and features a Bootstrap 3 theme.
+
 ## Installation
 
 Add this line to your application's Gemfile:
