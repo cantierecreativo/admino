@@ -107,15 +107,19 @@ module Admino
           end
         end
 
-        context 'with a set of search_fields and filter_groups' do
+        context 'with a set of search_fields, filter_groups and sortings' do
           let(:search_field_config) { config.add_search_field(:search_field) }
           let(:filter_group_config) { config.add_filter_group(:filter_group, [:one, :two]) }
+          let(:sorting_config) { config.add_sorting_scopes([:title, :year]) }
+
           let(:scope_chained_with_search_field) { double('scope 1') }
-          let(:final_chain) { double('scope 2') }
+          let(:scope_chained_with_group_filter) { double('scope 2') }
+          let(:final_chain) { double('scope 3') }
 
           before do
             search_field_config
             filter_group_config
+            sorting_config
             query
 
             query.search_field_by_name(:search_field).
@@ -126,6 +130,10 @@ module Admino
             query.filter_group_by_name(:filter_group).
               stub(:augment_scope).
               with(scope_chained_with_search_field).
+              and_return(scope_chained_with_group_filter)
+
+            query.sorting.stub(:augment_scope).
+              with(scope_chained_with_group_filter).
               and_return(final_chain)
           end
 
