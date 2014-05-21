@@ -489,7 +489,7 @@ class CustomTablePresenter < Admino::Table::Presenter
     { class: 'table-class' }
   end
 
-  def tbody_tr_html_options(resource_index)
+  def tbody_tr_html_options(resource, index)
     { class: 'tr-class' }
   end
 
