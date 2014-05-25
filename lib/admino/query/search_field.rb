@@ -23,16 +23,17 @@ module Admino
 
       def value
         value = params.fetch(:query, {}).fetch(param_name, nil)
+
         if config.coerce_to
-          begin
-            coercer = Coercible::Coercer.new
-            coercer[value.class].send(config.coerce_to, value)
-          rescue Coercible::UnsupportedCoercion
-            nil
-          end
-        else
-          value
+          value = begin
+                    coercer = Coercible::Coercer.new
+                    coercer[value.class].send(config.coerce_to, value)
+                  rescue Coercible::UnsupportedCoercion
+                    nil
+                  end
         end
+
+        value || config.default_value
       end
 
       def present?

@@ -90,6 +90,7 @@ class TasksQuery < Admino::Query::Base
   search_field :title_matches
 end
 ```
+
 The `#scope` method will check the presence of the `params[:query][:title_matches]` key. If it finds it, it will augment the query with a named scope called `:title_matches`, expected to be found within the `Task` model. The scope needs to accept an argument.
 
 ```ruby
@@ -104,6 +105,15 @@ Task.create(title: 'Fix me ASAP!!1!')
 
 TaskQuery.new.scope.count # => 2
 TaskQuery.new(query: { title_matches: 'ASAP' }).scope.count # => 1
+```
+
+You can provide a default value with the `default` option:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  search_field :title_matches, default: 'TODO'
+end
 ```
 
 #### `filter_by`
@@ -131,6 +141,17 @@ TaskQuery.new.scope.count # => 3
 TaskQuery.new(query: { status: 'completed' }).scope.count # => 2
 TaskQuery.new(query: { status: 'pending' }).scope.count # => 1
 TaskQuery.new(query: { status: 'foobar' }).scope.count # => 3
+```
+
+You can include a "reset" scope with the `include_empty_scope` option, and provide a default scope with the `default` option:
+
+```ruby
+class TasksQuery < Admino::Query::Base
+  # ...
+  filter_by :time, [:last_month, :last_week],
+            include_empty_scope: true,
+            default: :last_week
+end
 ```
 
 #### `sorting`

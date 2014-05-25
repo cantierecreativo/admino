@@ -32,10 +32,12 @@ class ScopeMock
 end
 
 class TestQuery < Admino::Query::Base
-  search_field :foo
+  search_field :foo, default: 'bar'
   search_field :starting_from, coerce: :to_date
 
-  filter_by :bar, [:one, :two], include_empty_scope: true
+  filter_by :bar, [:one, :two],
+            include_empty_scope: true,
+            default: :two
 
   sorting :by_title, :by_date,
           default_scope: :by_title,

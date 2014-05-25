@@ -4,7 +4,10 @@ module Admino
   module Query
     describe FilterGroup do
       subject(:filter_group) { FilterGroup.new(config, params) }
-      let(:config) { Configuration::FilterGroup.new(:foo, [:bar]) }
+      let(:config) do
+        Configuration::FilterGroup.new(:foo, [:bar, :other], options)
+      end
+      let(:options) { {} }
       let(:params) { {} }
 
       describe '#active_scope' do
@@ -16,7 +19,34 @@ module Admino
           end
 
           context 'if include_empty_scope is true' do
-            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+            let(:options) { { include_empty_scope: true } }
+
+            it 'returns the :empty scope' do
+              expect(filter_group.active_scope).to eq :empty
+            end
+
+            context 'if default scope is set' do
+              let(:config) do
+                Configuration::FilterGroup.new(
+                  :foo,
+                  [:bar],
+                  include_empty_scope: true,
+                  default: :bar
+                )
+              end
+
+              it 'returns it' do
+                expect(filter_group.active_scope).to eq :bar
+              end
+            end
+          end
+        end
+
+        context 'with "empty" param' do
+          let(:params) { { 'query' => { 'foo' => 'empty' } } }
+
+          context 'if include_empty_scope is true' do
+            let(:options) { { include_empty_scope: true, default: :bar } }
 
             it 'returns the :empty scope' do
               expect(filter_group.active_scope).to eq :empty
@@ -32,7 +62,7 @@ module Admino
           end
 
           context 'if include_empty_scope is true' do
-            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+            let(:options) { { include_empty_scope: true, default: :bar } }
 
             it 'returns nil' do
               expect(filter_group.active_scope).to be_nil
@@ -67,7 +97,7 @@ module Admino
           end
 
           context 'if include_empty_scope is true' do
-            let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
+            let(:options) { { include_empty_scope: true } }
 
             it 'returns the original scope' do
               expect(result).to eq scope
@@ -88,12 +118,13 @@ module Admino
         subject { filter_group.scopes }
 
         context 'if include_empty_scope is true' do
-          let(:config) { Configuration::FilterGroup.new(:foo, [:bar], include_empty_scope: true) }
-          it { should eq [:empty, :bar] }
+          let(:options) { { include_empty_scope: true } }
+
+          it { should eq [:empty, :bar, :other] }
         end
 
         context 'else' do
-          it { should eq [:bar] }
+          it { should eq [:bar, :other] }
         end
       end
     end

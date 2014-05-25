@@ -20,6 +20,16 @@ module Admino
           it 'returns nil' do
             expect(search_field.value).to be_nil
           end
+
+          context 'with a default value' do
+            let(:config) {
+              Configuration::SearchField.new(:foo, default: 'foo')
+            }
+
+            it 'returns it' do
+              expect(search_field.value).to eq 'foo'
+            end
+          end
         end
 
         context 'with coertion' do

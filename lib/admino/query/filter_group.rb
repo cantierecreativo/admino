@@ -23,8 +23,8 @@ module Admino
       end
 
       def active_scope
-        if value && scopes.include?(value.to_sym)
-          value.to_sym
+        if value && scopes.include?(value)
+          value
         else
           nil
         end
@@ -35,8 +35,22 @@ module Admino
       end
 
       def value
-        default_value = config.include_empty_scope? ? :empty : nil
-        params.fetch(:query, {}).fetch(param_name, default_value)
+        value = params.fetch(:query, {}).fetch(param_name, default_value)
+        if value
+          value.to_sym
+        else
+          nil
+        end
+      end
+
+      def default_value
+        if config.default_scope
+          config.default_scope
+        elsif config.include_empty_scope?
+          :empty
+        else
+          nil
+        end
       end
 
       def param_name

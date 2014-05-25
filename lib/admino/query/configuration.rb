@@ -3,16 +3,26 @@ module Admino
     class Configuration
       class SearchField
         attr_reader :name
-        attr_reader :coerce_to
+        attr_reader :options
 
         def initialize(name, options = {})
           options.symbolize_keys!
-          options.assert_valid_keys(:coerce)
+          options.assert_valid_keys(
+            :coerce,
+            :default
+          )
 
           @name = name.to_sym
+          @options = options
+        end
 
-          if coerce_to = options[:coerce]
-            @coerce_to = coerce_to.to_sym
+        def default_value
+          options[:default]
+        end
+
+        def coerce_to
+          if options[:coerce]
+            options[:coerce].to_sym
           end
         end
       end
@@ -24,7 +34,10 @@ module Admino
 
         def initialize(name, scopes, options = {})
           options.symbolize_keys!
-          options.assert_valid_keys(:include_empty_scope)
+          options.assert_valid_keys(
+            :include_empty_scope,
+            :default
+          )
 
           @name = name.to_sym
           @scopes = scopes.map(&:to_sym)
@@ -33,6 +46,12 @@ module Admino
 
         def include_empty_scope?
           @options.fetch(:include_empty_scope) { false }
+        end
+
+        def default_scope
+          if options[:default]
+            options[:default].to_sym
+          end
         end
       end
 
