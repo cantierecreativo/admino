@@ -18,10 +18,13 @@ module Admino
         double(
           'ActionDispatch::Request',
           query_parameters: ActiveSupport::HashWithIndifferentAccess.new(
-            'query' => { 'field' => 'value', 'filter_group' => 'bar' }
+            params
           ),
           path: '/'
         )
+      end
+      let(:params) do
+        { 'query' => { 'field' => 'value', 'filter_group' => 'bar' } }
       end
 
       before do
@@ -106,6 +109,16 @@ module Admino
           it 'keeps the request parameters intact' do
             presenter.scope_params(:foo)
             expect(request_object.query_parameters[:query][:filter_group]).to be_present
+          end
+
+          context 'the resulting query hash becomes empty' do
+            let(:params) do
+              { 'query' => { 'filter_group' => 'bar' } }
+            end
+
+            it 'removes the param altoghether' do
+              expect(subject).not_to have_key 'query'
+            end
           end
         end
 

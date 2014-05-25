@@ -41,6 +41,10 @@ module Admino
           params[:query].merge!(param_name => scope.to_s)
         end
 
+        if params[:query].empty?
+          params.delete(:query)
+        end
+
         params
       end
 
