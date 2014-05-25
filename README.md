@@ -1,4 +1,4 @@
-# Admino
+![Admino Logo](https://raw.github.com/cantierecreativo/admino/master/logo.jpg)
 
 [![Gem Version](https://badge.fury.io/rb/admino.png)](http://badge.fury.io/rb/admino)
 [![Build Status](https://travis-ci.org/cantierecreativo/admino.png?branch=v0.0.1)](https://travis-ci.org/cantierecreativo/admino)
