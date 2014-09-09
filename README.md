@@ -377,7 +377,7 @@ en:
 Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate HTML tables from a set of records:
 
 ```erb
-<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+<%= simple_table_for(@tasks, class: Task) do |row, record| %>
   <%= row.column :title %>
   <%= row.column :completed do %>
     <%= record.completed ? '✓' : '✗' %>
@@ -408,12 +408,26 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
 </table>
 ```
 
+### `simple_table_for` helper
+
+To make it more friendly and short to write, Admino also offers an helper:
+
+```erb
+<%= simple_table_for(@tasks, class: Task) do |row, record| %>
+  <%= row.column :title %>
+  <%= row.column :completed do %>
+    <%= record.completed ? '✓' : '✗' %>
+  <% end %>
+  <%= row.column :due_date %>
+<% end %>
+```
+
 ### Record actions
 
 Often tables need to offer some kind of action associated with the records. The presenter implements the following DSL to support that:
 
 ```erb
-<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+<%= simple_table_for(@tasks, class: Task) do |row, record| %>
   <%# ... %>
   <%= row.actions do %>
     <%= row.action :show, admin_task_path(record) %>

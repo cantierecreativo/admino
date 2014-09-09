@@ -33,7 +33,7 @@ module Admino
         context = args.pop
         collection = args.shift
 
-        @collection_klass = args.shift
+        @collection_klass = args.shift || collection.first.class
         @query = args.shift
 
         super(collection, context)
