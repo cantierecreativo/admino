@@ -7,16 +7,23 @@ describe 'Action View integration' do
     let(:collection) { [ first_post, second_post ] }
     let(:first_post) { Post.new('1') }
     let(:second_post) { Post.new('2') }
+    let(:params) {
+      {
+        sorting: 'by_title',
+        sort_order: 'desc'
+      }
+    }
+    let(:query) { TestQuery.new(params) }
 
     it 'produces HTML' do
-      result = context.table_for(collection) do |table, record|
-        table.column :title
+      result = context.table_for(collection, query: query) do |table, record|
+        table.column :title, sorting: :by_title
         table.actions do
           table.action :show, '/foo', 'Show'
         end
       end
       expect(result).to eq <<-HTML.strip
-        <table><thead><tr><th role=\"title\">Title</th><th role=\"actions\">Actions</th></tr></thead><tbody><tr class=\"is-even\"><td role=\"title\">Post 1</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr><tr class=\"is-odd\"><td role=\"title\">Post 2</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr></tbody></table>
+        <table><thead><tr><th role=\"title\"><a class=\"is-desc\" href=\"/?sort_order=asc&amp;sorting=by_title\">Title</a></th><th role=\"actions\">Actions</th></tr></thead><tbody><tr class=\"is-even\"><td role=\"title\" sorting=\"by_title\">Post 1</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr><tr class=\"is-odd\"><td role=\"title\" sorting=\"by_title\">Post 2</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr></tbody></table>
       HTML
     end
   end
