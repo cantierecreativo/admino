@@ -110,7 +110,7 @@ module Admino
         let(:params) { { 'query' => { 'foo' => 'bar' } } }
 
         it 'returns true if the provided scope is the one currently active' do
-          expect(filter_group.is_scope_active?('bar')).to be_true
+          expect(filter_group.is_scope_active?('bar')).to be_truthy
         end
       end
 
@@ -120,11 +120,11 @@ module Admino
         context 'if include_empty_scope is true' do
           let(:options) { { include_empty_scope: true } }
 
-          it { should eq [:empty, :bar, :other] }
+          it { is_expected.to eq [:empty, :bar, :other] }
         end
 
         context 'else' do
-          it { should eq [:bar, :other] }
+          it { is_expected.to eq [:bar, :other] }
         end
       end
     end

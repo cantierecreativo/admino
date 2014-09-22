@@ -23,7 +23,7 @@ module Admino
             end
 
             it 'generates a label with it' do
-              should have_tag(:th, text: 'This is a title')
+              is_expected.to have_tag(:th, text: 'This is a title')
             end
           end
 
@@ -40,7 +40,7 @@ module Admino
             end
 
             it 'generates a label with the human attribute name' do
-              should have_tag(:th, text: 'This is foo')
+              is_expected.to have_tag(:th, text: 'This is foo')
             end
           end
 
@@ -48,7 +48,7 @@ module Admino
             before { row.column(:title) }
 
             it 'generates a label with the titleized attribute name' do
-              should have_tag(:th, text: 'Title')
+              is_expected.to have_tag(:th, text: 'Title')
             end
 
             context 'with I18n set up' do
@@ -62,7 +62,7 @@ module Admino
               before { row.column(:title) }
 
               it 'generates a label with the human attribute name' do
-                should have_tag(:th, text: 'Post title')
+                is_expected.to have_tag(:th, text: 'Post title')
               end
             end
           end
@@ -80,14 +80,14 @@ module Admino
             let(:sorting) { double('Sorting') }
 
             before do
-              sorting.stub(:scope_link).with(:by_title, 'Title', {}).
+              allow(sorting).to receive(:scope_link).with(:by_title, 'Title', {}).
                 and_return('Link')
             end
 
             before { row.column(:title, sorting: :by_title) }
 
             it 'generates a sorting scope link' do
-              should have_tag(:th, text: 'Link')
+              is_expected.to have_tag(:th, text: 'Link')
             end
           end
         end
@@ -96,7 +96,7 @@ module Admino
           before { row.column(:author_name) }
 
           it 'generates a role attribute with the snake-cased name of the attribute' do
-            should have_tag(:th, with: { role: 'author-name' })
+            is_expected.to have_tag(:th, with: { role: 'author-name' })
           end
         end
 
@@ -104,7 +104,7 @@ module Admino
           before { row.column(:title, class: 'foo') }
 
           it 'uses it to build attributes' do
-            should have_tag(:th, with: { class: 'foo' })
+            is_expected.to have_tag(:th, with: { class: 'foo' })
           end
         end
       end
@@ -116,11 +116,11 @@ module Admino
           before { row.actions }
 
           it 'renders a th cell with role "actions"' do
-            should have_tag(:th, with: { role: 'actions' })
+            is_expected.to have_tag(:th, with: { role: 'actions' })
           end
 
           it 'renders a th cell with text "Actions"' do
-            should have_tag(:th, text: 'Actions')
+            is_expected.to have_tag(:th, text: 'Actions')
           end
         end
 
@@ -134,7 +134,7 @@ module Admino
 
           it 'renders a th cell with I18n text' do
             row.actions
-            should have_tag(:th, text: 'Available actions')
+            is_expected.to have_tag(:th, text: 'Available actions')
           end
 
           context 'and specific I18n set up' do
@@ -147,7 +147,7 @@ module Admino
 
             it 'uses the specific I18n text' do
               row.actions
-              should have_tag(:th, text: 'Post actions')
+              is_expected.to have_tag(:th, text: 'Post actions')
             end
           end
         end

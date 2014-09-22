@@ -16,7 +16,7 @@ module Admino
         filter_group = config.filter_groups.first
         expect(filter_group.name).to eq :bar
         expect(filter_group.scopes).to eq [:one, :two]
-        expect(filter_group.include_empty_scope?).to be_true
+        expect(filter_group.include_empty_scope?).to be_truthy
       end
 
       it 'allows #sortings declaration' do
@@ -38,7 +38,7 @@ module Admino
         let(:search_field) { double('SearchField', value: 'value') }
 
         before do
-          instance.stub(:search_field_by_name).
+          allow(instance).to receive(:search_field_by_name).
             with(:foo).
             and_return(search_field)
         end

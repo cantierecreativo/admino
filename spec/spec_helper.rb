@@ -69,9 +69,21 @@ class Post < Struct.new(:key, :dom_id)
 end
 
 require 'action_view'
+require 'simple_form'
+require 'simple_form/action_view_extensions/form_helper'
 
 class RailsViewContext < ActionView::Base
   include ActionView::Helpers::TagHelper
+  include SimpleForm::ActionViewExtensions::FormHelper
+  include Admino::ActionViewExtension
+
+  def request
+    OpenStruct.new(path: '/', fullpath: '/?p=1')
+  end
+
+  def polymorphic_path(*args)
+    '/'
+  end
 end
 
 RSpec.configure do |c|

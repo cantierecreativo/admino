@@ -21,7 +21,7 @@ module Admino
           end
 
           it 'fills the cell with the block content' do
-            should have_tag(:td, text: 'foo')
+            is_expected.to have_tag(:td, text: 'foo')
           end
         end
 
@@ -29,7 +29,7 @@ module Admino
           before { row.column(:title) }
 
           it 'fills the cell with the attribute value' do
-            should have_tag(:td, text: 'Post 1')
+            is_expected.to have_tag(:td, text: 'Post 1')
           end
         end
 
@@ -43,7 +43,7 @@ module Admino
           before { row.column(:author_name) }
 
           it 'generates a role attribute with the snake-cased name of the attribute' do
-            should have_tag(:td, with: { role: 'author-name' })
+            is_expected.to have_tag(:td, with: { role: 'author-name' })
           end
         end
 
@@ -51,7 +51,7 @@ module Admino
           before { row.column(:title, class: 'title') }
 
           it 'uses it to build attributes' do
-            should have_tag(:td, with: { class: 'title' })
+            is_expected.to have_tag(:td, with: { class: 'title' })
           end
 
           context 'with a class that implements a <action_name>_html_options' do
@@ -65,7 +65,7 @@ module Admino
             end
 
             it 'renders them as attributes' do
-              should have_tag(:td, with: { class: 'attribute title' })
+              is_expected.to have_tag(:td, with: { class: 'attribute title' })
             end
           end
         end
@@ -79,13 +79,13 @@ module Admino
               called = true
             end
 
-            expect(called).to be_true
+            expect(called).to be_truthy
           end
         end
 
         context 'no block' do
           before do
-            row.stub(:action)
+            allow(row).to receive(:action)
           end
 
           before do
@@ -107,7 +107,7 @@ module Admino
             before { row.action(:show, '/') }
 
             it 'generates a link with the specified URL' do
-              should have_tag(:a, with: { href: '/' })
+              is_expected.to have_tag(:a, with: { href: '/' })
             end
           end
 
@@ -124,7 +124,7 @@ module Admino
             before { row.action(:show) }
 
             it 'uses a method to build the URL (ie. show_url)' do
-              should have_tag(:a, with: { href: '/posts/1' })
+              is_expected.to have_tag(:a, with: { href: '/posts/1' })
             end
           end
 
@@ -145,7 +145,7 @@ module Admino
           before { row.action(:show, '/') }
 
           it 'generates a td cell with actions role' do
-            should have_tag(:td, with: { role: 'actions' })
+            is_expected.to have_tag(:td, with: { role: 'actions' })
           end
         end
 
@@ -153,7 +153,7 @@ module Admino
           before { row.action(:show, '/') }
 
           it 'generates a link with role' do
-            should have_tag(:a, with: { role: 'show' })
+            is_expected.to have_tag(:a, with: { role: 'show' })
           end
         end
 
@@ -162,7 +162,7 @@ module Admino
             before { row.action(:show, '/') }
 
             it 'generates a link with a titleized attribute' do
-              should have_tag(:a, text: 'Show')
+              is_expected.to have_tag(:a, text: 'Show')
             end
           end
 
@@ -177,7 +177,7 @@ module Admino
             before { row.action(:show, '/') }
 
             it 'generates a I18n text' do
-              should have_tag(:a, text: 'Show post')
+              is_expected.to have_tag(:a, text: 'Show post')
             end
           end
         end
@@ -186,7 +186,7 @@ module Admino
           before { row.action(:show, '/', class: 'foo') }
 
           it 'renders them as attributes' do
-            should have_tag(:a, with: { class: 'foo' })
+            is_expected.to have_tag(:a, with: { class: 'foo' })
           end
 
           context 'with a class that implements a <action_name>_html_options' do
@@ -204,7 +204,7 @@ module Admino
             end
 
             it 'renders them as attributes' do
-              should have_tag(:a, with: { class: 'foo show-button button' })
+              is_expected.to have_tag(:a, with: { class: 'foo show-button button' })
             end
           end
         end
@@ -215,7 +215,7 @@ module Admino
           end
 
           it 'renders it' do
-            should have_tag(:td, text: 'Foo')
+            is_expected.to have_tag(:td, text: 'Foo')
           end
         end
       end

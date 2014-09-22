@@ -6,6 +6,7 @@ require 'admino/query/filter_group'
 require 'admino/query/filter_group_presenter'
 require 'admino/query/sorting'
 require 'admino/query/sorting_presenter'
+require 'admino/query/scope_presenter'
 
 module Admino
   module Query

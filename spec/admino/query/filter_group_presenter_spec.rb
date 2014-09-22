@@ -28,7 +28,7 @@ module Admino
       end
 
       before do
-        view.stub(:request).and_return(request_object)
+        allow(view).to receive(:request).and_return(request_object)
       end
 
       describe '#scope_link' do
@@ -36,7 +36,7 @@ module Admino
         let(:scope_active) { false }
 
         before do
-          filter_group.stub(:is_scope_active?).
+          allow(filter_group).to receive(:is_scope_active?).
             with(:foo).and_return(scope_active)
         end
 
@@ -44,49 +44,49 @@ module Admino
           let(:scope_active) { true }
 
           it 'adds an is-active class' do
-            should have_tag(:a, with: { class: 'is-active' })
+            is_expected.to have_tag(:a, with: { class: 'is-active' })
           end
 
           context 'if an :active_class option is specified' do
             subject { presenter.scope_link(:foo, active_class: 'active') }
 
             it 'adds it' do
-              should have_tag(:a, with: { class: 'active' })
+              is_expected.to have_tag(:a, with: { class: 'active' })
             end
           end
         end
 
         context 'else' do
           it 'does not add it' do
-            should_not have_tag(:a, with: { class: 'is-active' })
+            is_expected.not_to have_tag(:a, with: { class: 'is-active' })
           end
         end
 
         context 'label' do
           before do
-            presenter.stub(:scope_name).with(:foo).and_return('scope_name')
+            allow(presenter).to receive(:scope_name).with(:foo).and_return('scope_name')
           end
 
           it 'uses #scope_name method' do
-            should have_tag(:a, text: 'scope_name')
+            is_expected.to have_tag(:a, text: 'scope_name')
           end
 
           context 'if a second parameter is supplied' do
             subject { presenter.scope_link(:foo, 'test', active_class: 'active') }
 
             it 'uses it' do
-              should have_tag(:a, text: 'test')
+              is_expected.to have_tag(:a, text: 'test')
             end
           end
         end
 
         context 'URL' do
           before do
-            presenter.stub(:scope_path).with(:foo).and_return('URL')
+            allow(presenter).to receive(:scope_path).with(:foo).and_return('URL')
           end
 
           it 'uses #scope_path method' do
-            should have_tag(:a, href: 'URL')
+            is_expected.to have_tag(:a, href: 'URL')
           end
         end
       end
@@ -96,7 +96,7 @@ module Admino
         subject { presenter.scope_params(:foo) }
 
         before do
-          filter_group.stub(:is_scope_active?).with(:foo).and_return(scope_active)
+          allow(filter_group).to receive(:is_scope_active?).with(:foo).and_return(scope_active)
         end
 
         context 'if scope is active' do

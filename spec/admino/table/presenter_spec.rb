@@ -17,12 +17,12 @@ module Admino
       let(:resource_row) { double('ResourceRow', to_html: '<td id="tbody_td"></td>'.html_safe) }
 
       before do
-        HeadRow.stub(:new).with(Post, query, view).and_return(head_row)
-        ResourceRow.stub(:new).with(first_post, view).and_return(resource_row)
-        ResourceRow.stub(:new).with(second_post, view).and_return(resource_row)
+        allow(HeadRow).to receive(:new).with(Post, query, view).and_return(head_row)
+        allow(ResourceRow).to receive(:new).with(first_post, view).and_return(resource_row)
+        allow(ResourceRow).to receive(:new).with(second_post, view).and_return(resource_row)
       end
 
-      describe '#.to_html' do
+      describe '#to_html' do
         let(:result) { presenter.to_html }
 
         it 'outputs a table' do
@@ -39,8 +39,8 @@ module Admino
 
         context 'if the record responds to #dom_id' do
           before do
-            first_post.stub(:dom_id).and_return('post_1')
-            second_post.stub(:dom_id).and_return('post_2')
+            allow(first_post).to receive(:dom_id).and_return('post_1')
+            allow(second_post).to receive(:dom_id).and_return('post_2')
           end
 
           it 'adds a record identifier to each collection row' do
@@ -162,6 +162,15 @@ module Admino
 
           it 'allows customizing resource row renderers' do
             expect(presenter.to_html).to have_tag('tbody tr td#custom_tbody_td')
+          end
+        end
+
+        context 'with empty collection and no collection_klass' do
+          let(:collection) { [] }
+          subject(:presenter) { presenter_klass.new(collection, nil, query, view) }
+
+          it 'raises an Exception' do
+            expect { result }.to raise_error(ArgumentError)
           end
         end
       end

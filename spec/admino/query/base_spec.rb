@@ -122,17 +122,17 @@ module Admino
             sorting_config
             query
 
-            query.search_field_by_name(:search_field).
-              stub(:augment_scope).
+            allow(query.search_field_by_name(:search_field)).
+              to receive(:augment_scope).
               with(starting_scope).
               and_return(scope_chained_with_search_field)
 
-            query.filter_group_by_name(:filter_group).
-              stub(:augment_scope).
+            allow(query.filter_group_by_name(:filter_group)).
+              to receive(:augment_scope).
               with(scope_chained_with_search_field).
               and_return(scope_chained_with_group_filter)
 
-            query.sorting.stub(:augment_scope).
+            allow(query.sorting).to receive(:augment_scope).
               with(scope_chained_with_group_filter).
               and_return(final_chain)
           end

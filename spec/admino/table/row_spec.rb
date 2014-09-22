@@ -21,27 +21,27 @@ module Admino
 
         context 'with a symbol param' do
           let(:arguments) { [:title] }
-          it { should eq [:title, nil, {}] }
+          it { is_expected.to eq [:title, nil, {}] }
         end
 
         context 'with a string param' do
           let(:arguments) { ['Title'] }
-          it { should eq [nil, 'Title', {}] }
+          it { is_expected.to eq [nil, 'Title', {}] }
         end
 
         context 'with a symbol and string param' do
           let(:arguments) { [:title, 'Title'] }
-          it { should eq [:title, 'Title', {}] }
+          it { is_expected.to eq [:title, 'Title', {}] }
         end
 
         context 'with two symbol params' do
           let(:arguments) { [:title, :foo] }
-          it { should eq [:title, :foo, {}] }
+          it { is_expected.to eq [:title, :foo, {}] }
         end
 
         context 'with options' do
           let(:arguments) { [{ foo: 'bar' }] }
-          it { should eq [nil, nil, { foo: 'bar' }] }
+          it { is_expected.to eq [nil, nil, { foo: 'bar' }] }
         end
       end
 
@@ -52,22 +52,22 @@ module Admino
 
         context 'with a symbol param' do
           let(:arguments) { [:show] }
-          it { should eq [:show, nil, nil, {}] }
+          it { is_expected.to eq [:show, nil, nil, {}] }
         end
 
         context 'with a one string param' do
           let(:arguments) { ['/'] }
-          it { should eq [nil, '/', nil, {}] }
+          it { is_expected.to eq [nil, '/', nil, {}] }
         end
 
         context 'with a two string params' do
           let(:arguments) { ['/', 'Details'] }
-          it { should eq [nil, '/', 'Details', {}] }
+          it { is_expected.to eq [nil, '/', 'Details', {}] }
         end
 
         context 'with options' do
           let(:arguments) { [{ foo: 'bar' }] }
-          it { should eq [nil, nil, nil, { foo: 'bar' }] }
+          it { is_expected.to eq [nil, nil, nil, { foo: 'bar' }] }
         end
       end
     end

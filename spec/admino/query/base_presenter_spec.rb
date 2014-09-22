@@ -16,7 +16,7 @@ module Admino
       end
 
       before do
-        view.stub(:request).and_return(request_object)
+        allow(view).to receive(:request).and_return(request_object)
       end
 
       describe '#form' do

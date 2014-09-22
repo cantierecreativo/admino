@@ -222,14 +222,11 @@ sorting.ascending?                       # => true
 
 ### Presenting search form and filters to the user
 
-Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate search forms and filtering links:
+Admino offers some helpers that make it really easy to generate search forms and filtering links:
 
 ```erb
-<%# instanciate the the query object presenter %>
-<% query = present(@query) %>
-
 <%# generate the search form %>
-<%= query.form do |q| %>
+<%= search_form_for(query) do |q| %>
   <p>
     <%= q.label :title_matches %>
     <%= q.text_field :title_matches %>
@@ -240,13 +237,11 @@ Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showca
 <% end %>
 
 <%# generate the filtering links %>
-<% query.filter_groups.each do |filter_group| %>
+<% filters_for(query) do |filter_group| %>
   <h6><%= filter_group.name %></h6>
   <ul>
-    <% filter_group.scopes.each do |scope| %>
-      <li>
-        <%= filter_group.scope_link(scope) %>
-      <li>
+    <% filter_group.each_scope do |scope| %>
+      <li><%= scope.link %><li>
     <% end %>
   </ul>
 <% end %>
@@ -254,14 +249,11 @@ Admino also offers a [Showcase presenter](https://github.com/stefanoverna/showca
 <%# generate the sorting links %>
 <h6>Sort by</h6>
 <ul>
-  <% query.sorting.scopes.each do |scope| %>
-    <li>
-      <%= query.sorting.scope_link(scope) %>
-    </li>
+  <% sortings_for(query) do |scope| %>
+    <li><%= scope.link %></li>
   <% end %>
 </ul>
 ```
-
 The great thing is that:
 
 * the search form gets automatically filled in with the last input the user submitted
@@ -272,20 +264,19 @@ The great thing is that:
 
 ### Simple Form support
 
-The presenter also offers a `#simple_form` method to make it work with [Simple Form](https://github.com/plataformatec/simple_form) out of the box.
+If you prefer using [Simple Form](https://github.com/plataformatec/simple_form), please use the `simple_search_form_for` helper instead.
 
 ### Output customization
 
-The `#scope_link` methods are very flexible, allowing you to change almost every aspect of the generated links:
+The `#link` methods are very flexible, allowing you to change almost every aspect of the generated links:
 
 ```erb
-<% status_filter = query.filter_group_by_name(:status) %>
-
-<%= status_filter.scope_link :completed,
-                             'Custom title',
-                             active_class: 'active',
-                             class: 'custom-class'
-%>
+<% filter_group.each_scope do |scope| %>
+  <li><%= scope.link 'Custom title',
+                     active_class: 'active',
+                     class: 'custom-class'
+  %><li>
+<% end %>
 ```
 
 Please refer to the tests for the details.
@@ -374,10 +365,10 @@ en:
 
 ## Admino::Table::Presenter
 
-Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/showcase) that makes it really easy to generate HTML tables from a set of records:
+Admino offers a `table_for` helper that makes it really easy to generate HTML tables from a set of records:
 
 ```erb
-<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+<%= table_for(@tasks, class: Task) do |row, record| %>
   <%= row.column :title %>
   <%= row.column :completed do %>
     <%= record.completed ? '✓' : '✗' %>
@@ -385,6 +376,8 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
   <%= row.column :due_date %>
 <% end %>
 ```
+
+With produces the following output:
 
 ```html
 <table>
@@ -410,10 +403,10 @@ Admino offers a [Showcase collection presenter](https://github.com/stefanoverna/
 
 ### Record actions
 
-Often tables need to offer some kind of action associated with the records. The presenter implements the following DSL to support that:
+Often tables need to offer some kind of action associated with the records. The table builder implements the following DSL to support that:
 
 ```erb
-<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html do |row, record| %>
+<%= table_for(@tasks, class: Task) do |row, record| %>
   <%# ... %>
   <%= row.actions do %>
     <%= row.action :show, admin_task_path(record) %>
@@ -459,7 +452,7 @@ You can then pass the query object as a parameter to the table presenter initial
 ```erb
 <% query = present(@query) %>
 
-<%= Admino::Table::Presenter.new(@tasks, Task, query, self).to_html do |row, record| %>
+<%= table_for(@tasks, class: Task) do |row, record| %>
   <%= row.column :title, sorting: :by_title %>
   <%= row.column :due_date, sorting: :by_due_date %>
 <% end %>
@@ -488,7 +481,7 @@ This generates links that allow the visitor to sort the result set in ascending 
 The `#column` and `#action` methods are very flexible, allowing you to change almost every aspect of the generated table cells:
 
 ```erb
-<%= Admino::Table::Presenter.new(@tasks, Task, self).to_html(class: 'table-class') do |row, record| %>
+<%= table_for(@tasks, class: Task, html: { class: 'table-class' }) do |row, record| %>
   <%= row.column :title, 'Custom title',
                  class: 'custom-class', role: 'custom-role', data: { custom: 'true' },
                  sorting: :by_title, sorting_html_options: { desc_class: 'down' }
@@ -550,6 +543,18 @@ class CustomTablePresenter < Admino::Table::Presenter
 end
 ```
 
+```erb
+<%= table_for(@tasks, class: Task, presenter: CustomTablePresenter) do |row, record| %>
+  <%= row.column :title, 'Custom title',
+                 class: 'custom-class', role: 'custom-role', data: { custom: 'true' },
+                 sorting: :by_title, sorting_html_options: { desc_class: 'down' }
+  %>
+  <%= row.action :show, admin_task_path(record), 'Custom label',
+                 class: 'custom-class', role: 'custom-role', data: { custom: 'true' }
+  %>
+<% end %>
+```
+
 Please refer to the tests for all the details.
 
 ### Inherited resources (and similar)
@@ -589,7 +594,7 @@ end
 This will enable you to generate row actions even faster, simply declaring them as arguments to the `#actions` DSL method:
 
 ```erb
-<%= CustomTablePresenter.new(@tasks, Task, self).to_html do |row, record| %>
+<%= table_for(@tasks, class: Task, presenter: CustomTablePresenter) do |row, record| %>
   <%# ... %>
   <%= row.actions :show, :edit, :destroy %>
 <% end %>

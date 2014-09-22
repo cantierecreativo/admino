@@ -24,6 +24,16 @@ module Admino
         h.link_to label, scope_path(scope), options.to_h
       end
 
+      def scopes
+        @scopes ||= super.map do |scope|
+          ScopePresenter.new(scope, self, view_context)
+        end
+      end
+
+      def each_scope(&block)
+        scopes.each(&block)
+      end
+
       def scope_path(scope)
         h.request.path + "?" + scope_params(scope).to_query
       end

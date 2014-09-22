@@ -34,12 +34,22 @@ module Admino
         collection = args.shift
 
         @collection_klass = args.shift
+
+        if !@collection_klass && !collection.empty?
+          @collection_klass = collection.first.class
+        end
+
         @query = args.shift
 
         super(collection, context)
       end
 
       def to_html(options = {}, &block)
+
+        if @collection_klass.nil?
+          raise ArgumentError, 'collection is empty and no explicit class is specified'
+        end
+
         table_tag(options) do
           thead_tag do
             thead_tr_tag do

@@ -25,6 +25,12 @@ module Admino
         h.request.path + "?" + scope_params(scope).to_query
       end
 
+      def scopes
+        @scopes ||= super.map do |scope|
+          ScopePresenter.new(scope, self, view_context)
+        end
+      end
+
       def scope_params(scope)
         params = ActiveSupport::HashWithIndifferentAccess.new(
           h.request.query_parameters.deep_dup
