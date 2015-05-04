@@ -54,6 +54,41 @@ module Admino
           expect(result).to have_tag(:label, text: 'NAME')
         end
       end
+
+      describe '#simple_form' do
+        let(:result) do
+          presenter.simple_form do |form|
+            form.input(:foo)
+          end
+        end
+
+        before do
+          I18n.backend.store_translations(
+            :en,
+            query: { attributes: { test_query: { foo: 'NAME' } } }
+          )
+        end
+
+        it 'renders a form pointing to the current URL' do
+          expect(result).to have_tag(:form, with: { action: '/?foo=bar' })
+        end
+
+        it 'renders a form with method GET' do
+          expect(result).to have_tag(:form, with: { method: 'get' })
+        end
+
+        it 'renders inputs with a query[] name prefix' do
+          expect(result).to have_tag(:input, with: { type: 'text', name: 'query[foo]' })
+        end
+
+        it 'prefills inputs with query value' do
+          expect(result).to have_tag(:input, with: { type: 'text', value: 'value' })
+        end
+
+        it 'it generates labels in the :query I18n space' do
+          expect(result).to have_tag(:label, content: 'NAME')
+        end
+      end
     end
   end
 end

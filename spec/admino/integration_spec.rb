@@ -22,9 +22,22 @@ describe 'Action View integration' do
           table.action :show, '/foo', 'Show'
         end
       end
-      expect(result).to eq <<-HTML.strip
-        <table><thead><tr><th role=\"title\"><a class=\"is-desc\" href=\"/?sort_order=asc&amp;sorting=by_title\">Title</a></th><th role=\"actions\">Actions</th></tr></thead><tbody><tr class=\"is-even\"><td role=\"title\" sorting=\"by_title\">Post 1</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr><tr class=\"is-odd\"><td role=\"title\" sorting=\"by_title\">Post 2</td><td role=\"actions\"><a href=\"/foo\" role=\"show\">Show</a></td></tr></tbody></table>
-      HTML
+
+      expect(result).to have_tag(:table) do
+        with_tag 'thead th:first-child', with: { role: 'title' }
+        with_tag 'thead th:last-child', with: { role: 'actions' }
+
+        with_tag 'th:first-child a', with: { class: 'is-desc', href: '/?sort_order=asc&sorting=by_title' }, text: 'Title'
+        with_tag 'th:last-child', text: 'Actions'
+
+        with_tag 'tbody tr:first-child', with: { class: 'is-even' }
+        with_tag 'tbody tr:last-child', with: { class: 'is-odd' }
+
+        with_tag 'tbody tr:first-child td:first-child', with: { role: 'title' }, text: 'Post 1'
+        with_tag 'tbody tr:first-child td:last-child', with: { role: 'actions' }
+
+        with_tag 'tbody tr:first-child td:last-child a', with: { role: 'show', href: '/foo' }
+      end
     end
   end
 
@@ -45,9 +58,17 @@ describe 'Action View integration' do
         end
       end
 
-      expect(result).to eq <<-HTML.strip
-        Bar: <a href="/?query%5Bbar%5D=empty">Empty</a><a class="is-active" href="/?">One</a><a href="/?query%5Bbar%5D=two">Two</a>
-      HTML
+      expect(result).to have_tag(:a, with: { href: '/?query%5Bbar%5D=empty' }) do
+        with_text 'Empty'
+      end
+
+      expect(result).to have_tag(:a, with: { class: 'is-active', href: '/?' }) do
+        with_text 'One'
+      end
+
+      expect(result).to have_tag(:a, with: { href: '/?query%5Bbar%5D=two' }) do
+        with_text 'Two'
+      end
     end
   end
 
@@ -66,9 +87,13 @@ describe 'Action View integration' do
         result << scope.link
       end
 
-      expect(result).to eq <<-HTML.strip
-        <a class=\"is-desc\" href=\"/?sort_order=asc&amp;sorting=by_title\">By title</a><a href=\"/?sort_order=asc&amp;sorting=by_date\">By date</a>
-      HTML
+      expect(result).to have_tag(:a, with: { class: 'is-desc', href: '/?sort_order=asc&sorting=by_title' }) do
+        with_text 'By title'
+      end
+
+      expect(result).to have_tag(:a, with: { href: '/?sort_order=asc&sorting=by_date' }) do
+        with_text 'By date'
+      end
     end
   end
 
@@ -85,9 +110,9 @@ describe 'Action View integration' do
         f.text_field :foo
       end
 
-      expect(result).to eq <<-HTML.strip
-        <form accept-charset=\"UTF-8\" action=\"/?p=1\" class=\"new_query\" id=\"new_query\" method=\"get\"><div style=\"display:none\"><input name=\"utf8\" type=\"hidden\" value=\"&#x2713;\" /></div><input id=\"query_foo\" name=\"query[foo]\" type=\"text\" value=\"test\" /></form>
-      HTML
+      expect(result).to have_tag(:form, with: { action: '/?p=1', method: 'get' }) do
+        with_tag 'input', with: { type: 'text', value: 'test', name: 'query[foo]' }
+      end
     end
   end
 
@@ -104,9 +129,9 @@ describe 'Action View integration' do
         f.input :foo
       end
 
-      expect(result).to eq <<-HTML.strip
-        <form accept-charset=\"UTF-8\" action=\"/?p=1\" class=\"simple_form new_query\" id=\"new_query\" method=\"get\"><div style=\"display:none\"><input name=\"utf8\" type=\"hidden\" value=\"&#x2713;\" /></div><div class=\"input string required query_foo\"><label class=\"string required\" for=\"query_foo\"><abbr title=\"required\">*</abbr> Foo</label><input aria-required=\"true\" class=\"string required\" id=\"query_foo\" name=\"query[foo]\" required=\"required\" type=\"text\" value=\"test\" /></div></form>
-      HTML
+      expect(result).to have_tag(:form, with: { action: '/?p=1', method: 'get' }) do
+        with_tag 'input', with: { type: 'text', value: 'test', name: 'query[foo]' }
+      end
     end
   end
 end

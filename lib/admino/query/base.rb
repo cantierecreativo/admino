@@ -1,5 +1,7 @@
+require 'active_support/concern'
 require 'active_model/naming'
 require 'active_model/translation'
+require 'active_model/conversion'
 require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
 
@@ -10,6 +12,7 @@ module Admino
     class Base
       extend ActiveModel::Naming
       extend ActiveModel::Translation
+      include ActiveModel::Conversion
       extend Dsl
 
       attr_reader :params

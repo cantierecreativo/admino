@@ -68,9 +68,14 @@ class Post < Struct.new(:key, :dom_id)
   end
 end
 
+module Rails
+  def self.env
+    OpenStruct.new(development?: false)
+  end
+end
+
 require 'action_view'
 require 'simple_form'
-require 'simple_form/action_view_extensions/form_helper'
 
 class RailsViewContext < ActionView::Base
   include ActionView::Helpers::TagHelper
@@ -87,6 +92,8 @@ class RailsViewContext < ActionView::Base
 end
 
 RSpec.configure do |c|
+  c.include RSpecHtmlMatchers
+
   c.before(:each) do
     I18n.backend = I18n::Backend::Simple.new
   end
