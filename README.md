@@ -661,3 +661,17 @@ en:
         destroy: 'Delete'
 ```
 
+## Running tests
+
+Install gems:
+
+```
+$ bundle
+$ bundle exec appraisal
+```
+
+Launch tests:
+
+```
+bundle exec appraisal rake
+```
