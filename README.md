@@ -490,7 +490,7 @@ The `#column` and `#action` methods are very flexible, allowing you to change al
 <% end %>
 ```
 
-If you need more power, you can also subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appeareance.
+If you need more power, you can also subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appearance.
 Table cells are generated through two collaborator classes: `Admino::Table::HeadRow` and `Admino::Table::ResourceRow`. You can easily replace them with a subclass if you want. To grasp the idea here's an example:
 
 ```ruby
