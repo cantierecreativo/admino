@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    admino (0.0.14)
+    admino (0.0.16)
       activemodel
       activesupport
       coercible
@@ -181,3 +181,6 @@ DEPENDENCIES
   rspec
   rspec-html-matchers
   simple_form (= 3.1.0)
+
+BUNDLED WITH
+   1.10.6
