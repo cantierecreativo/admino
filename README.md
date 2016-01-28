@@ -119,9 +119,18 @@ end
 #### `filter_by`
 
 ```ruby
+class Task < ActiveRecord::Base
+  enum :status, [:pending, :completed, :archived]
+  scope :title_matches, ->(text) {
+    where('title ILIKE ?', "%#{text}%")
+  }
+end
+
 class TasksQuery < Admino::Query::Base
   # ...
   filter_by :status, [:completed, :pending]
+  filter_by :deleted, [:with_deleted]
+  filter_by :status, Task.statuses.keys
 end
 ```
 
@@ -227,12 +236,25 @@ Admino offers some helpers that make it really easy to generate search forms and
 ```erb
 <%# generate the search form %>
 <%= search_form_for(query) do |q| %>
+  <%# generate inputs from search_fields %>
   <p>
     <%= q.label :title_matches %>
     <%= q.text_field :title_matches %>
   </p>
   <p>
     <%= q.submit %>
+  </p>
+  
+  <%# generate inputs from filter_by %>
+  <p>
+	<%= q.label :status %>
+	<%= q.select :status, Task.statuses.keys %>  
+  </p>
+
+  <%# if filter_by has only one scope you can use a checkbox %>  
+  <p>
+    <%= q.check_box :deleted, {}, checked_value: "with_deleted" %>
+    <%= q.label :deleted %>
   </p>
 <% end %>
 
@@ -450,7 +472,9 @@ end
 You can then pass the query object as a parameter to the table presenter initializer, and associate table columns to specific sorting scopes of the query object using the `sorting` directive:
 
 ```erb
-<%= table_for(@tasks, class: Task, query: present(@query)) do |row, record| %>
+<% query = present(@query) %>
+
+<%= table_for(@tasks, class: Task) do |row, record| %>
   <%= row.column :title, sorting: :by_title %>
   <%= row.column :due_date, sorting: :by_due_date %>
 <% end %>
@@ -490,7 +514,7 @@ The `#column` and `#action` methods are very flexible, allowing you to change al
 <% end %>
 ```
 
-If you need more power, you can also subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appearance.
+If you need more power, you can also subclass `Admino::Table::Presenter`. For each HTML element, there's a set of methods you can override to customize it's appeareance.
 Table cells are generated through two collaborator classes: `Admino::Table::HeadRow` and `Admino::Table::ResourceRow`. You can easily replace them with a subclass if you want. To grasp the idea here's an example:
 
 ```ruby
