@@ -9,4 +9,7 @@ gemfile:
   - "gemfiles/rails_40.gemfile"
   - "gemfiles/rails_42.gemfile"
 
+before_install:
+  - gem install bundler
+
 script: "bundle exec rake spec"
