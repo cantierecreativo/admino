@@ -15,6 +15,10 @@ module Admino
 
       def filter_by(name, scopes, options = {})
         config.add_filter_group(name, scopes, options)
+
+        define_method name do
+          filter_group_by_name(name).value.to_s
+        end
       end
 
       def sorting(*args)
@@ -32,4 +36,3 @@ module Admino
     end
   end
 end
-
