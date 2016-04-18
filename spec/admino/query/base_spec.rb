@@ -112,33 +112,66 @@ module Admino
           let(:filter_group_config) { config.add_filter_group(:filter_group, [:one, :two]) }
           let(:sorting_config) { config.add_sorting_scopes([:title, :year]) }
 
-          let(:scope_chained_with_search_field) { double('scope 1') }
-          let(:scope_chained_with_group_filter) { double('scope 2') }
-          let(:final_chain) { double('scope 3') }
+          let(:params) do
+            {
+              query: {
+                search_field: "foo",
+                filter_group: "one",
+              },
+              sorting: "title",
+              sort_order: "desc"
+            }
+          end
 
           before do
             search_field_config
             filter_group_config
             sorting_config
             query
-
-            allow(query.search_field_by_name(:search_field)).
-              to receive(:augment_scope).
-              with(starting_scope).
-              and_return(scope_chained_with_search_field)
-
-            allow(query.filter_group_by_name(:filter_group)).
-              to receive(:augment_scope).
-              with(scope_chained_with_search_field).
-              and_return(scope_chained_with_group_filter)
-
-            allow(query.sorting).to receive(:augment_scope).
-              with(scope_chained_with_group_filter).
-              and_return(final_chain)
           end
 
-          it 'chains them toghether' do
-            expect(result).to eq final_chain
+          context 'if query object does not respond to scopes' do
+            it 'chains from starting scope' do
+              expect(result.chain).to eq [
+                :search_field, ["foo"],
+                :one, [],
+                :title, [:desc]
+              ]
+            end
+          end
+
+          context 'else' do
+            let(:query_klass) do
+              Class.new(Base) do
+                def self.model_name
+                  ActiveModel::Name.new(self, nil, "temp")
+                end
+
+                def search_field(scope, foo)
+                  scope.my_search_field(foo)
+                end
+
+                def one(scope)
+                  scope.my_one
+                end
+
+                def title(scope, order)
+                  scope.my_title(order)
+                end
+              end
+            end
+
+            subject(:query) do
+              query_klass.new(params, config)
+            end
+
+            it 'chains from starting scope calling query object methods' do
+              expect(result.chain).to eq [
+                :my_search_field, ["foo"],
+                :my_one, [],
+                :my_title, [:desc]
+              ]
+            end
           end
         end
 

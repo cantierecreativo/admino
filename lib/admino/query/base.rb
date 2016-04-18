@@ -6,6 +6,7 @@ require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
 
 require 'admino/query/dsl'
+require 'admino/query/builder'
 
 module Admino
   module Query
@@ -40,19 +41,20 @@ module Admino
                              raise ArgumentError, 'no starting scope provided'
                            end
 
-        scope_builder = starting_scope
-
+        query_builder = Builder.new(self, starting_scope)
         scope_augmenters = search_fields + filter_groups
         scope_augmenters << sorting if sorting
 
         scope_augmenters.each do |search_field|
-          scope_builder = search_field.augment_scope(scope_builder)
+          query_builder = search_field.augment_scope(query_builder)
         end
 
+        scope = query_builder.scope
+
         if config.ending_scope_callable
-          scope_builder.instance_exec(self, &config.ending_scope_callable)
+          scope.instance_exec(self, &config.ending_scope_callable)
         else
-          scope_builder
+          scope
         end
       end
 

@@ -200,6 +200,23 @@ class TasksQuery < Admino::Query::Base
 end
 ```
 
+### Let the query object do the chaining
+
+If you do not want to pollute your ActiveRecord model with all these scopes, you are free to implement the scopes on the query object itself:
+
+```ruby
+class Task < ActiveRecord::Base
+end
+
+class TasksQuery < Admino::Query::Base
+  search_field :title_matches
+
+  def title_matches(scope, text)
+    scope.where('title ILIKE ?', "%#{text}%")
+  end
+end
+```
+
 ### Inspecting the query state
 
 A query object supports various methods to inspect the available search fields, filters and sortings, and their state:
