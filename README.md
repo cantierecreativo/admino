@@ -202,7 +202,7 @@ end
 
 ### Let the query object do the chaining
 
-If you do not want to pollute your ActiveRecord model with all these scopes, you are free to implement the scopes on the query object itself:
+If you do not want to pollute your ActiveRecord model with all these scopes, you are free to implement them on the query object itself (just make sure to suffix them with `_scope`):
 
 ```ruby
 class Task < ActiveRecord::Base
@@ -211,7 +211,7 @@ end
 class TasksQuery < Admino::Query::Base
   search_field :title_matches
 
-  def title_matches(scope, text)
+  def title_matches_scope(scope, text)
     scope.where('title ILIKE ?', "%#{text}%")
   end
 end
