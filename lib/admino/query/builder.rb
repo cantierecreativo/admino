@@ -12,8 +12,9 @@ module Admino
       private
 
       def method_missing(method, *args)
-        if context.respond_to?(method)
-          Builder.new(context, context.send(method, scope, *args))
+        context_method = "#{method}_scope"
+        if context.respond_to?(context_method)
+          Builder.new(context, context.send(context_method, scope, *args))
         else
           Builder.new(context, scope.send(method, *args))
         end

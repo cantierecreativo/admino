@@ -147,15 +147,15 @@ module Admino
                   ActiveModel::Name.new(self, nil, "temp")
                 end
 
-                def search_field(scope, foo)
+                def search_field_scope(scope, foo)
                   scope.my_search_field(foo)
                 end
 
-                def one(scope)
+                def one_scope(scope)
                   scope.my_one
                 end
 
-                def title(scope, order)
+                def title_scope(scope, order)
                   scope.my_title(order)
                 end
               end
