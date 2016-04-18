@@ -41,15 +41,7 @@ module Admino
                              raise ArgumentError, 'no starting scope provided'
                            end
 
-        query_builder = Builder.new(self, starting_scope)
-        scope_augmenters = search_fields + filter_groups
-        scope_augmenters << sorting if sorting
-
-        scope_augmenters.each do |search_field|
-          query_builder = search_field.augment_scope(query_builder)
-        end
-
-        scope = query_builder.scope
+        scope = augment_scope(Builder.new(self, starting_scope)).scope
 
         if config.ending_scope_callable
           scope.instance_exec(self, &config.ending_scope_callable)
@@ -83,6 +75,20 @@ module Admino
       end
 
       private
+
+      def augment_scope(query_builder)
+        scope_augmenters.each do |augmenter|
+          query_builder = augmenter.augment_scope(query_builder)
+        end
+
+        query_builder
+      end
+
+      def scope_augmenters
+        scope_augmenters = search_fields + filter_groups
+        scope_augmenters << sorting if sorting
+        scope_augmenters
+      end
 
       def init_filter_groups
         @filter_groups = {}
