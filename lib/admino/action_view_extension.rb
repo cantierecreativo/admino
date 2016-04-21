@@ -39,14 +39,14 @@ module Admino
 
     def search_form_for(query, options = {}, &block)
       options.symbolize_keys!
-      options.assert_valid_keys(:presenter)
-      Internals.present_query(query, self, options).form(&block)
+      Internals.present_query(query, self, options.slice(:presenter)).
+        form(options, &block)
     end
 
     def simple_search_form_for(query, options = {}, &block)
       options.symbolize_keys!
-      options.assert_valid_keys(:presenter)
-      Internals.present_query(query, self, options).simple_form(&block)
+      Internals.present_query(query, self, options.slice(:presenter)).
+        simple_form(options, &block)
     end
   end
 end
