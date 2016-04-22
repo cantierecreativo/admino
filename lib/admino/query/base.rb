@@ -17,6 +17,7 @@ module Admino
       extend Dsl
 
       attr_reader :params
+      attr_reader :context
       attr_reader :filter_groups
       attr_reader :search_fields
       attr_reader :sorting
@@ -25,9 +26,10 @@ module Admino
         :query
       end
 
-      def initialize(params = nil, config = nil)
+      def initialize(params = nil, context = {}, config = nil)
         @params = ActiveSupport::HashWithIndifferentAccess.new(params)
         @config = config
+        @context = context
 
         init_filter_groups
         init_search_fields

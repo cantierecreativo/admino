@@ -3,8 +3,9 @@ require 'spec_helper'
 module Admino
   module Query
     describe Base do
-      subject(:query) { Base.new(params, config) }
+      subject(:query) { Base.new(params, context, config) }
       let(:params) { {} }
+      let(:context) { {} }
       let(:config) { nil }
 
       it 'takes a request params' do
@@ -162,7 +163,7 @@ module Admino
             end
 
             subject(:query) do
-              query_klass.new(params, config)
+              query_klass.new(params, context, config)
             end
 
             it 'chains from starting scope calling query object methods' do
