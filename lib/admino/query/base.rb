@@ -27,7 +27,12 @@ module Admino
       end
 
       def initialize(params = nil, context = {}, config = nil)
-        @params = ActiveSupport::HashWithIndifferentAccess.new(params)
+        @params =
+          if params.respond_to?(:to_unsafe_h)
+            ActiveSupport::HashWithIndifferentAccess.new(params.to_unsafe_h)
+          else
+            ActiveSupport::HashWithIndifferentAccess.new(params)
+          end
         @config = config
         @context = context
 
