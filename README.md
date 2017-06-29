@@ -56,7 +56,7 @@ Each query object gets initialized with a hash of params, and features a `#scope
 ```ruby
 class TasksController < ApplicationController
   def index
-    @query = TasksQuery.new(params)
+    @query = TasksQuery.new(params.permit!.to_unsafe_hash)
     @tasks = @query.scope
   end
 end
@@ -326,7 +326,7 @@ Suppose you have to filter the tasks based on the `@current_user` work group. Yo
 
 ```ruby
 def index
-  @query = TasksQuery.new(params)
+  @query = TasksQuery.new(params.permit!.to_unsafe_hash)
   @project_tasks = @query.scope(@current_user.team.tasks)
 end
 ```
@@ -491,7 +491,7 @@ You can then pass the query object as a parameter to the table presenter initial
 ```erb
 <% query = present(@query) %>
 
-<%= table_for(@tasks, class: Task) do |row, record| %>
+<%= table_for(@tasks, class: Task, query: query) do |row, record| %>
   <%= row.column :title, sorting: :by_title %>
   <%= row.column :due_date, sorting: :by_due_date %>
 <% end %>
