@@ -491,7 +491,7 @@ You can then pass the query object as a parameter to the table presenter initial
 ```erb
 <% query = present(@query) %>
 
-<%= table_for(@tasks, class: Task) do |row, record| %>
+<%= table_for(@tasks, class: Task, query: query) do |row, record| %>
   <%= row.column :title, sorting: :by_title %>
   <%= row.column :due_date, sorting: :by_due_date %>
 <% end %>
